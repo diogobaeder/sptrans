@@ -14,7 +14,7 @@ class ClientTest(TestCase):
         token = 'some token'
         client = Client()
 
-        client.Autenticar(token)
+        client.authenticate(token)
 
         expected_url = '{}/Login/Autenticar?token={}'.format(BASE_URL, token)
         mock_requests.post.assert_called_once_with(expected_url)
@@ -29,6 +29,6 @@ class ClientTest(TestCase):
             cookies = 'some cookies'
         mock_requests.post.return_value = response
 
-        client.Autenticar(token)
+        client.authenticate(token)
 
         self.assertEqual(client.cookies, response.cookies)

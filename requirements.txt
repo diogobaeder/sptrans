@@ -11,6 +11,5 @@ pep8==1.4.6
 pyflakes==0.7.3
 requests==2.0.0
 sh==1.09
-wsgiref==0.1.2
 xtraceback==0.3.3
 yanc==0.2.4

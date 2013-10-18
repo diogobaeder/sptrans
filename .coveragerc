@@ -1,0 +1,13 @@
+[run]
+branch = True
+source = sptrans
+include = sptrans/*
+omit = sptrans/*/tests/*
+       sptrans/tests/*
+       test_*.*
+
+[report]
+show_missing = True
+
+[html]
+title = sptrans coverage report

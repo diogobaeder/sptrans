@@ -1,4 +1,5 @@
 PyYAML==3.10
+Pygments==1.6
 argparse==1.2.1
 coverage==3.7
 coveralls==0.3

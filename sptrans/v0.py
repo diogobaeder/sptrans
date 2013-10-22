@@ -8,6 +8,10 @@ Then you can use the other methods to grab data from the API.
 
 from collections import namedtuple
 import json
+try:
+    from urllib import urlencode
+except ImportError:  # pragma: no cover
+    from urllib.parse import urlencode
 
 import requests
 
@@ -51,8 +55,12 @@ class Client(object):
         self.cookies = result.cookies
 
     def search_lines(self, keywords):
-        response = requests.get()
-        response_list = json.loads(response.content)
+        query_string = urlencode({'termosBusca': keywords})
+        url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
 
-        for line_dict in response_list:
+        response = requests.get(url, cookies=self.cookies)
+        content = response.content.decode('latin1')
+        lines_list = json.loads(content)
+
+        for line_dict in lines_list:
             yield Line.from_dict(line_dict)

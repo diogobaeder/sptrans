@@ -1,4 +1,4 @@
-LINE_SEARCH = """
+LINE_SEARCH = b"""
 [
     {
         "CodigoLinha": 1273,

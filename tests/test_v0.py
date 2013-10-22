@@ -1,8 +1,13 @@
 import json
+import os
+from unittest import TestCase, skipUnless
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 from mock import patch
 from nose.tools import istest
-from unittest import TestCase
 
 
 from . import test_fixtures
@@ -11,6 +16,9 @@ from sptrans.v0 import (
     Client,
     Line,
 )
+
+
+TOKEN = os.environ.get('SPTRANS_TOKEN', None)
 
 
 class ClientTest(TestCase):
@@ -61,7 +69,7 @@ class ClientTest(TestCase):
         lines = list(self.client.search_lines(keywords))
 
         expected_lines = [Line.from_dict(line_dict)
-                          for line_dict in json.loads(test_fixtures.LINE_SEARCH)]
+                          for line_dict in json.loads(test_fixtures.LINE_SEARCH.decode('latin1'))]
         self.assertEqual(lines, expected_lines)
 
     @istest
@@ -75,12 +83,43 @@ class ClientTest(TestCase):
 
         self.assert_is_a_generator(lines)
 
+    @istest
+    def searches_lines_retrieves_from_correct_url(self):
+        with patch('sptrans.v0.requests') as mock_requests:
+            keywords = 'my search'
+
+            mock_requests.get.return_value.content = test_fixtures.LINE_SEARCH
+
+            list(self.client.search_lines(keywords))
+
+            query_string = urlencode({'termosBusca': keywords})
+            url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
+            mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
+
+@skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')
+class ClientFunctionalTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.client.authenticate(TOKEN)
+
+    @istest
+    def searches_lines(self):
+        keywords = 'lapa'
+        lines = list(self.client.search_lines(keywords))
+
+        self.assertGreater(len(lines), 0)
+        for line in lines:
+            main = line.main_to_sec.lower()
+            sec = line.sec_to_main.lower()
+            self.assertTrue((keywords in main) or (keywords in sec))
+
 
 class LineTest(TestCase):
 
     @istest
     def converts_a_dict_to_a_line(self):
-        line_dict = json.loads(test_fixtures.LINE_SEARCH)[0]
+        line_dict = json.loads(test_fixtures.LINE_SEARCH.decode('latin1'))[0]
 
         line = Line.from_dict(line_dict)
 

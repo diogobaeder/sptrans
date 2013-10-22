@@ -84,17 +84,17 @@ class ClientTest(TestCase):
         self.assert_is_a_generator(lines)
 
     @istest
-    def searches_lines_retrieves_from_correct_url(self):
-        with patch('sptrans.v0.requests') as mock_requests:
-            keywords = 'my search'
+    @patch('sptrans.v0.requests')
+    def searches_lines_retrieves_from_correct_url(self, mock_requests):
+        keywords = 'my search'
 
-            mock_requests.get.return_value.content = test_fixtures.LINE_SEARCH
+        mock_requests.get.return_value.content = test_fixtures.LINE_SEARCH
 
-            list(self.client.search_lines(keywords))
+        list(self.client.search_lines(keywords))
 
-            query_string = urlencode({'termosBusca': keywords})
-            url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
-            mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        query_string = urlencode({'termosBusca': keywords})
+        url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')

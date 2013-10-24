@@ -93,3 +93,13 @@ STOP_SEARCH_BY_LANE = b"""
   }
 ]
 """
+
+LANES = b"""
+[
+  {
+    "CodCorredor": 8,
+    "CodCot": 0,
+    "Nome": "Campo Limpo"
+  }
+]
+"""

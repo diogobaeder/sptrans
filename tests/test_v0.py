@@ -149,6 +149,19 @@ class ClientTest(TestCase):
         self.assertEqual(stops, expected_stops)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
+    @istest
+    @patch('sptrans.v0.requests')
+    def lists_lanes(self, mock_requests):
+        mock_requests.get.return_value.content = test_fixtures.LANES
+
+        lanes = list(self.client.list_lanes())
+
+        expected_lanes = [Lane.from_dict(lane_dict)
+                          for lane_dict in json.loads(test_fixtures.LANES.decode('latin1'))]
+        url = self.client.build_url('Corredor')
+        self.assertEqual(lanes, expected_lanes)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')
 class ClientFunctionalTest(TestCase):

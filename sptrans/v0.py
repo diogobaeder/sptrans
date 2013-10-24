@@ -19,52 +19,49 @@ import requests
 BASE_URL = 'http://api.olhovivo.sptrans.com.br/v0'
 
 
-LINE_FIELDS = [
-    'code',
-    'circular',
-    'sign',
-    'direction',
-    'type',
-    'main_to_sec',
-    'sec_to_main',
-    'info',
-]
-STOP_FIELDS = [
-    'code',
-    'name',
-    'address',
-    'latitude',
-    'longitude',
-]
+LINE_MAPPING = {
+    'code': 'CodigoLinha',
+    'circular': 'Circular',
+    'sign': 'Letreiro',
+    'direction': 'Sentido',
+    'type': 'Tipo',
+    'main_to_sec': 'DenominacaoTPTS',
+    'sec_to_main': 'DenominacaoTSTP',
+    'info': 'Informacoes',
+}
+STOP_MAPPING = {
+    'code': 'CodigoParada',
+    'name': 'Nome',
+    'address': 'Endereco',
+    'latitude': 'Latitude',
+    'longitude': 'Longitude',
+}
+LANE_MAPPING = {
+    'code': 'CodCorredor',
+    'cot': 'CodCot',
+    'name': 'Nome',
+}
 
 
-class Line(namedtuple('Line', LINE_FIELDS)):
-
-    @classmethod
-    def from_dict(cls, line_dict):
-        return cls(
-            code=line_dict['CodigoLinha'],
-            circular=line_dict['Circular'],
-            sign=line_dict['Letreiro'],
-            direction=line_dict['Sentido'],
-            type=line_dict['Tipo'],
-            main_to_sec=line_dict['DenominacaoTPTS'],
-            sec_to_main=line_dict['DenominacaoTSTP'],
-            info=line_dict['Informacoes'],
-        )
-
-
-class Stop(namedtuple('Stop', STOP_FIELDS)):
+class MappedTuple(object):
+    MAPPING = {}
 
     @classmethod
-    def from_dict(cls, stop_dict):
-        return cls(
-            code=stop_dict['CodigoParada'],
-            name=stop_dict['Nome'],
-            address=stop_dict['Endereco'],
-            latitude=stop_dict['Latitude'],
-            longitude=stop_dict['Longitude'],
-        )
+    def from_dict(cls, result_dict):
+        kwargs = {key: result_dict[value] for key, value in cls.MAPPING.items()}
+        return cls(**kwargs)
+
+
+def build_tuple_class(name, mapping):
+    class Tuple(namedtuple(name, mapping.keys()), MappedTuple):
+        MAPPING = mapping
+
+    return Tuple
+
+
+Line = build_tuple_class('Line', LINE_MAPPING)
+Stop = build_tuple_class('Stop', STOP_MAPPING)
+Lane = build_tuple_class('Lane', LANE_MAPPING)
 
 
 class Client(object):

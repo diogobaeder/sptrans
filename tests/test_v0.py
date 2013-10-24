@@ -11,6 +11,7 @@ from . import test_fixtures
 from sptrans.v0 import (
     BASE_URL,
     Client,
+    Lane,
     Line,
     Stop,
 )
@@ -198,3 +199,20 @@ class StopTest(TestCase):
         self.assertEqual(stop.address, 'R ARMINDA/ R BALTHAZAR DA VEIGA')
         self.assertEqual(stop.latitude, -23.592938)
         self.assertEqual(stop.longitude, -46.672727)
+
+
+class LaneTest(TestCase):
+
+    @istest
+    def converts_a_dict_to_a_lane(self):
+        lane_dict = {
+            'CodCorredor': 8,
+            'CodCot': 0,
+            'Nome': 'Campo Limpo',
+        }
+
+        lane = Lane.from_dict(lane_dict)
+
+        self.assertEqual(lane.code, 8)
+        self.assertEqual(lane.cot, 0)
+        self.assertEqual(lane.name, 'Campo Limpo')

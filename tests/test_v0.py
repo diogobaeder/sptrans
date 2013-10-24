@@ -88,7 +88,9 @@ class ClientTest(TestCase):
 
         expected_lines = [Line.from_dict(line_dict)
                           for line_dict in json.loads(test_fixtures.LINE_SEARCH.decode('latin1'))]
+        url = self.client.build_url('Linha/Buscar', termosBusca=keywords)
         self.assertEqual(lines, expected_lines)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -103,18 +105,6 @@ class ClientTest(TestCase):
 
     @istest
     @patch('sptrans.v0.requests')
-    def searches_lines_retrieves_from_correct_url(self, mock_requests):
-        keywords = 'my search'
-
-        mock_requests.get.return_value.content = test_fixtures.LINE_SEARCH
-
-        list(self.client.search_lines(keywords))
-
-        url = self.client.build_url('Linha/Buscar', termosBusca=keywords)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
-
-    @istest
-    @patch('sptrans.v0.requests')
     def searches_stops(self, mock_requests):
         keywords = 'my search'
 
@@ -124,18 +114,8 @@ class ClientTest(TestCase):
 
         expected_stops = [Stop.from_dict(stop_dict)
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH.decode('latin1'))]
-        self.assertEqual(stops, expected_stops)
-
-    @istest
-    @patch('sptrans.v0.requests')
-    def searches_stops_retrieves_from_correct_url(self, mock_requests):
-        keywords = 'my search'
-
-        mock_requests.get.return_value.content = test_fixtures.STOP_SEARCH
-
-        list(self.client.search_stops(keywords))
-
         url = self.client.build_url('Parada/Buscar', termosBusca=keywords)
+        self.assertEqual(stops, expected_stops)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
 

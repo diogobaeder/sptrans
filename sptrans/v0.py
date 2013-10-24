@@ -53,10 +53,8 @@ class MappedTuple(object):
 
 
 def build_tuple_class(name, mapping):
-    class Tuple(namedtuple(name, mapping.keys()), MappedTuple):
-        MAPPING = mapping
-
-    return Tuple
+    base_classes = (namedtuple(name, mapping.keys()), MappedTuple)
+    return type(name, base_classes, {'MAPPING': mapping})
 
 
 Line = build_tuple_class('Line', LINE_MAPPING)

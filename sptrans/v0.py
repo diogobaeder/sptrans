@@ -44,7 +44,7 @@ LANE_MAPPING = {
 }
 VEHICLE_MAPPING = {
     'plate': 'p',
-    'a': 'a',
+    'accessible': 'a',
     'latitude': 'py',
     'longitude': 'px',
 }

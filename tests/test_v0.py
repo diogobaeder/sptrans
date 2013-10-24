@@ -261,11 +261,11 @@ class PositionsTest(TestCase):
         self.assertEqual(positions.time, datetime.combine(today, hour))
 
         self.assertEqual(positions.vehicles[0].plate, '11433')
-        self.assertEqual(positions.vehicles[0].a, False)
+        self.assertEqual(positions.vehicles[0].accessible, False)
         self.assertEqual(positions.vehicles[0].latitude, -23.540150375000003)
         self.assertEqual(positions.vehicles[0].longitude, -46.64414075)
 
         self.assertEqual(positions.vehicles[1].plate, '12132')
-        self.assertEqual(positions.vehicles[1].a, False)
+        self.assertEqual(positions.vehicles[1].accessible, False)
         self.assertEqual(positions.vehicles[1].latitude, -23.5200315)
         self.assertEqual(positions.vehicles[1].longitude, -46.699387)

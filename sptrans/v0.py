@@ -103,3 +103,8 @@ class Client(object):
         result_list = self.get_json('Parada/BuscarParadasPorLinha', codigoLinha=code)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
+
+    def search_stops_by_lane(self, code):
+        result_list = self.get_json('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
+        for result_dict in result_list:
+            yield Stop.from_dict(result_dict)

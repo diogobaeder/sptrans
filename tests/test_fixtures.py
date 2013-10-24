@@ -74,3 +74,22 @@ STOP_SEARCH_BY_LINE = b"""
   }
 ]
 """
+
+STOP_SEARCH_BY_LANE = b"""
+[
+  {
+    "CodigoParada": 260016859,
+    "Nome": "ANTONIA DE QUEIROS B/C",
+    "Endereco": " R DONA ANTONIA DE QUEIROS/ R PIAUI ",
+    "Latitude": -23.549577,
+    "Longitude": -46.653216
+  },
+  {
+    "CodigoParada": 260016858,
+    "Nome": "ANTONIA DE QUEIROS C/B",
+    "Endereco": " R DONA ANTONIA DE QUEIROS/ R PIAUI ",
+    "Latitude": -23.54958,
+    "Longitude": -46.65343
+  }
+]
+"""

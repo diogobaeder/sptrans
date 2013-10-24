@@ -15,6 +15,7 @@ from sptrans.v0 import (
     BASE_URL,
     Client,
     Line,
+    Stop,
 )
 
 
@@ -115,10 +116,18 @@ class ClientTest(TestCase):
         url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
-    #@istest
-    #@patch('sptrans.v0.requests')
-    #def gets_line_details(self, mock_requests):
-        #code = '1234'
+    @istest
+    @patch('sptrans.v0.requests')
+    def searches_stops(self, mock_requests):
+        keywords = 'my search'
+
+        mock_requests.get.return_value.content = test_fixtures.STOP_SEARCH
+
+        stops = list(self.client.search_stops(keywords))
+
+        expected_stops = [Stop.from_dict(stop_dict)
+                          for stop_dict in json.loads(test_fixtures.STOP_SEARCH.decode('latin1'))]
+        self.assertEqual(stops, expected_stops)
 
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')
@@ -155,3 +164,18 @@ class LineTest(TestCase):
         self.assertEqual(line.main_to_sec, 'PCA.RAMOS DE AZEVEDO')
         self.assertEqual(line.sec_to_main, 'TERMINAL LAPA')
         self.assertEqual(line.info, None)
+
+
+class StopTest(TestCase):
+
+    @istest
+    def converts_a_dict_to_a_stop(self):
+        stop_dict = json.loads(test_fixtures.STOP_SEARCH.decode('latin1'))[0]
+
+        stop = Stop.from_dict(stop_dict)
+
+        self.assertEqual(stop.code, 340015329)
+        self.assertEqual(stop.name, "AFONSO BRAZ B/C1")
+        self.assertEqual(stop.address, 'R ARMINDA/ R BALTHAZAR DA VEIGA')
+        self.assertEqual(stop.latitude, -23.592938)
+        self.assertEqual(stop.longitude, -46.672727)

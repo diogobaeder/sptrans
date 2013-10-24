@@ -29,6 +29,13 @@ LINE_FIELDS = [
     'sec_to_main',
     'info',
 ]
+STOP_FIELDS = [
+    'code',
+    'name',
+    'address',
+    'latitude',
+    'longitude',
+]
 
 
 class Line(namedtuple('Line', LINE_FIELDS)):
@@ -44,6 +51,19 @@ class Line(namedtuple('Line', LINE_FIELDS)):
             main_to_sec=line_dict['DenominacaoTPTS'],
             sec_to_main=line_dict['DenominacaoTSTP'],
             info=line_dict['Informacoes'],
+        )
+
+
+class Stop(namedtuple('Stop', STOP_FIELDS)):
+
+    @classmethod
+    def from_dict(cls, stop_dict):
+        return cls(
+            code=stop_dict['CodigoParada'],
+            name=stop_dict['Nome'],
+            address=stop_dict['Endereco'],
+            latitude=stop_dict['Latitude'],
+            longitude=stop_dict['Longitude'],
         )
 
 
@@ -73,3 +93,14 @@ class Client(object):
 
         for line_dict in lines_list:
             yield Line.from_dict(line_dict)
+
+    def search_stops(self, keywords):
+        query_string = urlencode({'termosBusca': keywords})
+        url = '{}/Parada/Buscar?{}'.format(BASE_URL, query_string)
+
+        response = requests.get(url, cookies=self.cookies)
+        content = response.content.decode('latin1')
+        stops_list = json.loads(content)
+
+        for stop_dict in stops_list:
+            yield Stop.from_dict(stop_dict)

@@ -22,3 +22,36 @@ LINE_SEARCH = b"""
     }
 ]
 """
+
+STOP_SEARCH = b"""
+[
+  {
+    "CodigoParada": 340015329,
+    "Nome": "AFONSO BRAZ B/C1",
+    "Endereco": "R ARMINDA/ R BALTHAZAR DA VEIGA",
+    "Latitude": -23.592938,
+    "Longitude": -46.672727
+  },
+  {
+    "CodigoParada": 340015328,
+    "Nome": "AFONSO BRAZ B/C2",
+    "Endereco": "R ARMINDA/ R BALTHAZAR DA VEIGA",
+    "Latitude": -23.59337,
+    "Longitude": -46.672766
+  },
+  {
+    "CodigoParada": 340015333,
+    "Nome": "AFONSO BRAZ C/B1",
+    "Endereco": "R DOUTORA MARIA AUGUSTA SARAIVA/ R NATIVIDADE",
+    "Latitude": -23.596028,
+    "Longitude": -46.673378
+  },
+  {
+    "CodigoParada": 340015331,
+    "Nome": "AFONSO BRAZ C/B2",
+    "Endereco": "R DOUTORA MARIA AUGUSTA SARAIVA/ R NATIVIDADE",
+    "Latitude": -23.595374,
+    "Longitude": -46.673207
+  }
+]
+"""

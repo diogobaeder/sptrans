@@ -1,10 +1,7 @@
+# -*- coding: utf-8 -*-
 import json
 import os
 from unittest import TestCase, skipUnless
-try:
-    from urllib import urlencode
-except ImportError:
-    from urllib.parse import urlencode
 
 from mock import patch
 from nose.tools import istest
@@ -37,9 +34,9 @@ class ClientTest(TestCase):
 
     @istest
     def builds_a_usable_url_from_endpoint_and_parameters(self):
-        expected_url = '{}/foo/bar?baz=joe'.format(BASE_URL)
+        expected_url = '{}/foo/bar?baz=john+doe'.format(BASE_URL)
 
-        url = self.client.build_url('foo/bar', baz='joe')
+        url = self.client.build_url('foo/bar', baz='john doe')
 
         self.assertEqual(url, expected_url)
 
@@ -47,11 +44,12 @@ class ClientTest(TestCase):
     @patch('sptrans.v0.requests')
     def gets_content_from_a_certain_endpoint(self, mock_requests):
         url = '{}/foo/bar?baz=joe'.format(BASE_URL)
-        mock_requests.get.return_value.content = 'some content'
+        content = u'some façade'
+        mock_requests.get.return_value.content = content.encode('latin1')
 
         content = self.client.get_content('foo/bar', baz='joe')
 
-        self.assertEqual(content, 'some content')
+        self.assertEqual(content, content)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
     @istest
@@ -62,8 +60,8 @@ class ClientTest(TestCase):
 
         client.authenticate(token)
 
-        expected_url = '{}/Login/Autenticar?token={}'.format(BASE_URL, token)
-        mock_requests.post.assert_called_once_with(expected_url)
+        url = self.client.build_url('Login/Autenticar', token=token)
+        mock_requests.post.assert_called_once_with(url)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -112,8 +110,7 @@ class ClientTest(TestCase):
 
         list(self.client.search_lines(keywords))
 
-        query_string = urlencode({'termosBusca': keywords})
-        url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
+        url = self.client.build_url('Linha/Buscar', termosBusca=keywords)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
     @istest

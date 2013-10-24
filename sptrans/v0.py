@@ -77,30 +77,24 @@ class Client(object):
     def get_content(self, endpoint, **kwargs):
         url = self.build_url(endpoint, **kwargs)
         response = requests.get(url, cookies=self.cookies)
-        return response.content
+        return response.content.decode('latin1')
+
+    def get_json(self, endpoint, **kwargs):
+        content = self.get_content(endpoint, **kwargs)
+        result_list = json.loads(content)
+        return result_list
 
     def authenticate(self, token):
-        result = requests.post('{}/Login/Autenticar?token={}'.format(BASE_URL, token))
+        url = self.build_url('Login/Autenticar', token=token)
+        result = requests.post(url)
         self.cookies = result.cookies
 
     def search_lines(self, keywords):
-        query_string = urlencode({'termosBusca': keywords})
-        url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
-
-        response = requests.get(url, cookies=self.cookies)
-        content = response.content.decode('latin1')
-        lines_list = json.loads(content)
-
-        for line_dict in lines_list:
-            yield Line.from_dict(line_dict)
+        result_list = self.get_json('Linha/Buscar', termosBusca=keywords)
+        for result_dict in result_list:
+            yield Line.from_dict(result_dict)
 
     def search_stops(self, keywords):
-        query_string = urlencode({'termosBusca': keywords})
-        url = '{}/Parada/Buscar?{}'.format(BASE_URL, query_string)
-
-        response = requests.get(url, cookies=self.cookies)
-        content = response.content.decode('latin1')
-        stops_list = json.loads(content)
-
-        for stop_dict in stops_list:
-            yield Stop.from_dict(stop_dict)
+        result_list = self.get_json('Parada/Buscar', termosBusca=keywords)
+        for result_dict in result_list:
+            yield Stop.from_dict(result_dict)

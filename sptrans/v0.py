@@ -7,6 +7,7 @@ Then you can use the other methods to grab data from the API.
 """
 
 from collections import namedtuple
+from datetime import date, datetime, time
 import json
 try:
     from urllib import urlencode
@@ -41,6 +42,12 @@ LANE_MAPPING = {
     'cot': 'CodCot',
     'name': 'Nome',
 }
+VEHICLE_MAPPING = {
+    'plate': 'p',
+    'a': 'a',
+    'latitude': 'py',
+    'longitude': 'px',
+}
 
 
 class MappedTuple(object):
@@ -60,51 +67,81 @@ def build_tuple_class(name, mapping):
 Line = build_tuple_class('Line', LINE_MAPPING)
 Stop = build_tuple_class('Stop', STOP_MAPPING)
 Lane = build_tuple_class('Lane', LANE_MAPPING)
+Vehicle = build_tuple_class('Vehicle', VEHICLE_MAPPING)
+
+
+POSITION_FIELDS = [
+    'time',
+    'vehicles',
+]
+
+
+class Positions(namedtuple('Positions', POSITION_FIELDS)):
+
+    @classmethod
+    def from_dict(cls, result_dict):
+        internal_dicts = result_dict['vs']
+        tuples = [Vehicle.from_dict(internal_dict) for internal_dict in internal_dicts]
+
+        hour_parts = result_dict['hr'].split(':')
+        hour, minute = [int(part) for part in hour_parts]
+        today = date.today()
+        time_ = time(hour=hour, minute=minute)
+        date_and_time = datetime.combine(today, time_)
+
+        return cls(
+            time=date_and_time,
+            vehicles=tuples,
+        )
 
 
 class Client(object):
     cookies = None
 
-    def build_url(self, endpoint, **kwargs):
+    def _build_url(self, endpoint, **kwargs):
         query_string = urlencode(kwargs)
         return '{}/{}?{}'.format(BASE_URL, endpoint, query_string)
 
-    def get_content(self, endpoint, **kwargs):
-        url = self.build_url(endpoint, **kwargs)
+    def _get_content(self, endpoint, **kwargs):
+        url = self._build_url(endpoint, **kwargs)
         response = requests.get(url, cookies=self.cookies)
         return response.content.decode('latin1')
 
-    def get_json(self, endpoint, **kwargs):
-        content = self.get_content(endpoint, **kwargs)
+    def _get_json(self, endpoint, **kwargs):
+        content = self._get_content(endpoint, **kwargs)
         result_list = json.loads(content)
         return result_list
 
     def authenticate(self, token):
-        url = self.build_url('Login/Autenticar', token=token)
+        url = self._build_url('Login/Autenticar', token=token)
         result = requests.post(url)
         self.cookies = result.cookies
 
     def search_lines(self, keywords):
-        result_list = self.get_json('Linha/Buscar', termosBusca=keywords)
+        result_list = self._get_json('Linha/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Line.from_dict(result_dict)
 
     def search_stops(self, keywords):
-        result_list = self.get_json('Parada/Buscar', termosBusca=keywords)
+        result_list = self._get_json('Parada/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
     def search_stops_by_line(self, code):
-        result_list = self.get_json('Parada/BuscarParadasPorLinha', codigoLinha=code)
+        result_list = self._get_json('Parada/BuscarParadasPorLinha', codigoLinha=code)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
     def search_stops_by_lane(self, code):
-        result_list = self.get_json('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
+        result_list = self._get_json('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
     def list_lanes(self):
-        result_list = self.get_json('Corredor')
+        result_list = self._get_json('Corredor')
         for result_dict in result_list:
             yield Lane.from_dict(result_dict)
+
+    def get_positions(self, code):
+        result_dict = self._get_json('Posicao', codigoLinha=code)
+        return Positions.from_dict(result_dict)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date, datetime, time
 import json
 import os
 from unittest import TestCase, skipUnless
@@ -13,6 +14,7 @@ from sptrans.v0 import (
     Client,
     Lane,
     Line,
+    Positions,
     Stop,
 )
 
@@ -37,7 +39,7 @@ class ClientTest(TestCase):
     def builds_a_usable_url_from_endpoint_and_parameters(self):
         expected_url = '{}/foo/bar?baz=john+doe'.format(BASE_URL)
 
-        url = self.client.build_url('foo/bar', baz='john doe')
+        url = self.client._build_url('foo/bar', baz='john doe')
 
         self.assertEqual(url, expected_url)
 
@@ -48,7 +50,7 @@ class ClientTest(TestCase):
         content = u'some façade'
         mock_requests.get.return_value.content = content.encode('latin1')
 
-        content = self.client.get_content('foo/bar', baz='joe')
+        content = self.client._get_content('foo/bar', baz='joe')
 
         self.assertEqual(content, content)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
@@ -61,7 +63,7 @@ class ClientTest(TestCase):
 
         client.authenticate(token)
 
-        url = self.client.build_url('Login/Autenticar', token=token)
+        url = self.client._build_url('Login/Autenticar', token=token)
         mock_requests.post.assert_called_once_with(url)
 
     @istest
@@ -89,7 +91,7 @@ class ClientTest(TestCase):
 
         expected_lines = [Line.from_dict(line_dict)
                           for line_dict in json.loads(test_fixtures.LINE_SEARCH.decode('latin1'))]
-        url = self.client.build_url('Linha/Buscar', termosBusca=keywords)
+        url = self.client._build_url('Linha/Buscar', termosBusca=keywords)
         self.assertEqual(lines, expected_lines)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
@@ -115,7 +117,7 @@ class ClientTest(TestCase):
 
         expected_stops = [Stop.from_dict(stop_dict)
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH.decode('latin1'))]
-        url = self.client.build_url('Parada/Buscar', termosBusca=keywords)
+        url = self.client._build_url('Parada/Buscar', termosBusca=keywords)
         self.assertEqual(stops, expected_stops)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
@@ -130,7 +132,7 @@ class ClientTest(TestCase):
 
         expected_stops = [Stop.from_dict(stop_dict)
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH_BY_LINE.decode('latin1'))]
-        url = self.client.build_url('Parada/BuscarParadasPorLinha', codigoLinha=code)
+        url = self.client._build_url('Parada/BuscarParadasPorLinha', codigoLinha=code)
         self.assertEqual(stops, expected_stops)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
@@ -145,7 +147,7 @@ class ClientTest(TestCase):
 
         expected_stops = [Stop.from_dict(stop_dict)
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH_BY_LANE.decode('latin1'))]
-        url = self.client.build_url('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
+        url = self.client._build_url('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
         self.assertEqual(stops, expected_stops)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
@@ -158,8 +160,23 @@ class ClientTest(TestCase):
 
         expected_lanes = [Lane.from_dict(lane_dict)
                           for lane_dict in json.loads(test_fixtures.LANES.decode('latin1'))]
-        url = self.client.build_url('Corredor')
+        url = self.client._build_url('Corredor')
         self.assertEqual(lanes, expected_lanes)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
+    @istest
+    @patch('sptrans.v0.requests')
+    def gets_positions(self, mock_requests):
+        fixture = test_fixtures.VEHICLE_POSITIONS
+        code = '1234'
+
+        mock_requests.get.return_value.content = fixture
+
+        positions = self.client.get_positions(code)
+
+        expected_positions = Positions.from_dict(json.loads(fixture.decode('latin1')))
+        url = self.client._build_url('Posicao', codigoLinha=code)
+        self.assertEqual(positions, expected_positions)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
 
@@ -229,3 +246,26 @@ class LaneTest(TestCase):
         self.assertEqual(lane.code, 8)
         self.assertEqual(lane.cot, 0)
         self.assertEqual(lane.name, 'Campo Limpo')
+
+
+class PositionsTest(TestCase):
+
+    @istest
+    def converts_a_dict_to_a_positions_object_with_vehicles(self):
+        positions_dict = json.loads(test_fixtures.VEHICLE_POSITIONS.decode('latin1'))
+        today = date.today()
+        hour = time(hour=22, minute=57)
+
+        positions = Positions.from_dict(positions_dict)
+
+        self.assertEqual(positions.time, datetime.combine(today, hour))
+
+        self.assertEqual(positions.vehicles[0].plate, '11433')
+        self.assertEqual(positions.vehicles[0].a, False)
+        self.assertEqual(positions.vehicles[0].latitude, -23.540150375000003)
+        self.assertEqual(positions.vehicles[0].longitude, -46.64414075)
+
+        self.assertEqual(positions.vehicles[1].plate, '12132')
+        self.assertEqual(positions.vehicles[1].a, False)
+        self.assertEqual(positions.vehicles[1].latitude, -23.5200315)
+        self.assertEqual(positions.vehicles[1].longitude, -46.699387)

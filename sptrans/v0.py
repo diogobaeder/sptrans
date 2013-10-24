@@ -50,6 +50,15 @@ class Line(namedtuple('Line', LINE_FIELDS)):
 class Client(object):
     cookies = None
 
+    def build_url(self, endpoint, **kwargs):
+        query_string = urlencode(kwargs)
+        return '{}/{}?{}'.format(BASE_URL, endpoint, query_string)
+
+    def get_content(self, endpoint, **kwargs):
+        url = self.build_url(endpoint, **kwargs)
+        response = requests.get(url, cookies=self.cookies)
+        return response.content
+
     def authenticate(self, token):
         result = requests.post('{}/Login/Autenticar?token={}'.format(BASE_URL, token))
         self.cookies = result.cookies

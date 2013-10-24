@@ -35,6 +35,25 @@ class ClientTest(TestCase):
         self.assertIsInstance(obj, generator_type)
 
     @istest
+    def builds_a_usable_url_from_endpoint_and_parameters(self):
+        expected_url = '{}/foo/bar?baz=joe'.format(BASE_URL)
+
+        url = self.client.build_url('foo/bar', baz='joe')
+
+        self.assertEqual(url, expected_url)
+
+    @istest
+    @patch('sptrans.v0.requests')
+    def gets_content_from_a_certain_endpoint(self, mock_requests):
+        url = '{}/foo/bar?baz=joe'.format(BASE_URL)
+        mock_requests.get.return_value.content = 'some content'
+
+        content = self.client.get_content('foo/bar', baz='joe')
+
+        self.assertEqual(content, 'some content')
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
+    @istest
     @patch('sptrans.v0.requests')
     def authenticates_the_user(self, mock_requests):
         token = 'some token'
@@ -95,6 +114,11 @@ class ClientTest(TestCase):
         query_string = urlencode({'termosBusca': keywords})
         url = '{}/Linha/Buscar?{}'.format(BASE_URL, query_string)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
+    #@istest
+    #@patch('sptrans.v0.requests')
+    #def gets_line_details(self, mock_requests):
+        #code = '1234'
 
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')

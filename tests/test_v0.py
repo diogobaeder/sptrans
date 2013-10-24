@@ -118,6 +118,21 @@ class ClientTest(TestCase):
         self.assertEqual(stops, expected_stops)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
+    @istest
+    @patch('sptrans.v0.requests')
+    def searches_stops_by_line(self, mock_requests):
+        code = '1234'
+
+        mock_requests.get.return_value.content = test_fixtures.STOP_SEARCH_BY_LINE
+
+        stops = list(self.client.search_stops_by_line(code))
+
+        expected_stops = [Stop.from_dict(stop_dict)
+                          for stop_dict in json.loads(test_fixtures.STOP_SEARCH_BY_LINE.decode('latin1'))]
+        url = self.client.build_url('Parada/BuscarParadasPorLinha', codigoLinha=code)
+        self.assertEqual(stops, expected_stops)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')
 class ClientFunctionalTest(TestCase):

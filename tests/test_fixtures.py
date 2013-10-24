@@ -55,3 +55,22 @@ STOP_SEARCH = b"""
   }
 ]
 """
+
+STOP_SEARCH_BY_LINE = b"""
+[
+  {
+    "CodigoParada": 7014417,
+    "Nome": "ANGELICA B/C",
+    "Endereco": "AV   ANGELICA",
+    "Latitude": -23.534587,
+    "Longitude": -46.654178
+  },
+  {
+    "CodigoParada": 60016784,
+    "Nome": "PALMEIRAS B/C",
+    "Endereco": " R PADRE ANTONIO TOMAS/ AV POMPEIA ",
+    "Latitude": -23.525834,
+    "Longitude": -46.679254
+  }
+]
+"""

@@ -179,6 +179,22 @@ class ClientTest(TestCase):
         self.assertEqual(positions, expected_positions)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
+    #@istest
+    #@patch('sptrans.v0.requests')
+    #def gets_forecast(self, mock_requests):
+        #fixture = test_fixtures.ARRIVAL_FORECAST
+        #stop_code = '1234'
+        #line_code = '2345'
+
+        #mock_requests.get.return_value.content = fixture
+
+        #forecast = self.client.get_forecast(stop_code=stop_code, line_code=line_code)
+
+        #expected_forecast = ForecastWithStop.from_dict(json.loads(fixture.decode('latin1')))
+        #url = self.client._build_url('Previsao', codigoParada=stop_code, codigoLinha=line_code)
+        #self.assertEqual(forecast, expected_forecast)
+        #mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')
 class ClientFunctionalTest(TestCase):
@@ -269,3 +285,33 @@ class PositionsTest(TestCase):
         self.assertEqual(positions.vehicles[1].accessible, False)
         self.assertEqual(positions.vehicles[1].latitude, -23.5200315)
         self.assertEqual(positions.vehicles[1].longitude, -46.699387)
+
+
+class ForecastWithStopTest(TestCase):
+
+    @istest
+    def converts_a_dict_to_an_forecast_object_with_stop_lines_and_vehicles(self):
+        forecast_dict = json.loads(test_fixtures.FORECAST_FOR_LINE_AND_STOP.decode('latin1'))
+        today = date.today()
+
+        forecast = ForecastWithStop.from_dict(forecast_dict)
+
+        self.assertEqual(forecast.time, datetime.combine(today, time(hour=23, minute=9)))
+
+        self.assertEqual(forecast.stop.code, 4200953)
+        self.assertEqual(forecast.stop.name, 'PARADA ROBERTO SELMI DEI B/C')
+        self.assertEqual(forecast.stop.latitude, -23.675901)
+        self.assertEqual(forecast.stop.longitude, -46.752812)
+
+        self.assertEqual(forecast.stop.lines[0].sign, '7021-10')
+        self.assertEqual(forecast.stop.lines[0].code, 1989)
+        self.assertEqual(forecast.stop.lines[0].direction, 1)
+        self.assertEqual(forecast.stop.lines[0].main_to_sec, 'TERM. JOÃO DIAS')
+        self.assertEqual(forecast.stop.lines[0].sec_to_main, 'JD. MARACÁ')
+        self.assertEqual(forecast.stop.lines[0].arrival_quantity, 1)
+
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].plate, '74558')
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].arrival_time, datetime.combine(today, time(hour=23, minute=11)))
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].accessible, '7021-10')
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].latitude, '7021-10')
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].longitude, '7021-10')

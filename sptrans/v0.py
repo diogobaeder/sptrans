@@ -20,6 +20,10 @@ import requests
 BASE_URL = 'http://api.olhovivo.sptrans.com.br/v0'
 
 
+class RequestError(Exception):
+    """Raised when the client is not authenticated."""
+
+
 class MappedTuple(object):
     MAPPING = {}
 
@@ -159,8 +163,10 @@ class Client(object):
 
     def _get_json(self, endpoint, **kwargs):
         content = self._get_content(endpoint, **kwargs)
-        result_list = json.loads(content)
-        return result_list
+        result = json.loads(content)
+        if isinstance(result, dict) and tuple(result.keys()) == (u'Message', ):
+            raise RequestError(result[u'Message'])
+        return result
 
     def authenticate(self, token):
         url = self._build_url('Login/Autenticar', token=token)

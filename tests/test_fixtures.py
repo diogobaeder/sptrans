@@ -249,3 +249,5 @@ FORECAST_FOR_STOP = u"""
   }
 }
 """.encode('latin1')
+
+MESSAGE_ERROR = u'{"Message":"Authorization has been denied for this request."}'.encode('latin1')

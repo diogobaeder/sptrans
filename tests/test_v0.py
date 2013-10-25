@@ -17,6 +17,7 @@ from sptrans.v0 import (
     Lane,
     Line,
     Positions,
+    RequestError,
     Stop,
 )
 
@@ -226,6 +227,16 @@ class ClientTest(TestCase):
         url = self.client._build_url('Previsao/Parada', codigoParada=stop_code)
         self.assertEqual(forecast, expected_forecast)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
+    @istest
+    @patch('sptrans.v0.requests')
+    def raises_request_error_if_not_authenticated(self, mock_requests):
+        fixture = test_fixtures.MESSAGE_ERROR
+        mock_requests.get.return_value.content = fixture
+
+        expected_message = json.loads(fixture.decode('latin1'))[u'Message']
+
+        self.assertRaisesRegexp(RequestError, expected_message, self.client._get_json, 'Some/Endpoint')
 
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')

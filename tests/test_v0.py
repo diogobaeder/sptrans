@@ -12,6 +12,7 @@ from . import test_fixtures
 from sptrans.v0 import (
     BASE_URL,
     Client,
+    ForecastWithStop,
     Lane,
     Line,
     Positions,
@@ -306,12 +307,12 @@ class ForecastWithStopTest(TestCase):
         self.assertEqual(forecast.stop.lines[0].sign, '7021-10')
         self.assertEqual(forecast.stop.lines[0].code, 1989)
         self.assertEqual(forecast.stop.lines[0].direction, 1)
-        self.assertEqual(forecast.stop.lines[0].main_to_sec, 'TERM. JOÃO DIAS')
-        self.assertEqual(forecast.stop.lines[0].sec_to_main, 'JD. MARACÁ')
+        self.assertEqual(forecast.stop.lines[0].main_to_sec, u'TERM. JOÃO DIAS')
+        self.assertEqual(forecast.stop.lines[0].sec_to_main, u'JD. MARACÁ')
         self.assertEqual(forecast.stop.lines[0].arrival_quantity, 1)
 
         self.assertEqual(forecast.stop.lines[0].vehicles[0].plate, '74558')
-        self.assertEqual(forecast.stop.lines[0].vehicles[0].arrival_time, datetime.combine(today, time(hour=23, minute=11)))
-        self.assertEqual(forecast.stop.lines[0].vehicles[0].accessible, '7021-10')
-        self.assertEqual(forecast.stop.lines[0].vehicles[0].latitude, '7021-10')
-        self.assertEqual(forecast.stop.lines[0].vehicles[0].longitude, '7021-10')
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].arriving_at, datetime.combine(today, time(hour=23, minute=11)))
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].accessible, True)
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].latitude, -23.67603)
+        self.assertEqual(forecast.stop.lines[0].vehicles[0].longitude, -46.75891166666667)

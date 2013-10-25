@@ -74,24 +74,118 @@ POSITION_FIELDS = [
     'time',
     'vehicles',
 ]
+FORECAST_WITH_STOP_FIELDS = [
+    'time',
+    'stop',
+]
+STOP_WITH_LINES_FIELDS = [
+    'code',
+    'name',
+    'latitude',
+    'longitude',
+    'lines',
+]
+LINE_WITH_VEHICLES_FIELDS = [
+    'sign',
+    'code',
+    'direction',
+    'main_to_sec',
+    'sec_to_main',
+    'arrival_quantity',
+    'vehicles',
+]
+VEHICLES_FORECAST_FIELDS = [
+    'plate',
+    'arriving_at',
+    'accessible',
+    'latitude',
+    'longitude',
+]
 
 
 class Positions(namedtuple('Positions', POSITION_FIELDS)):
 
     @classmethod
     def from_dict(cls, result_dict):
+        today = date.today()
         internal_dicts = result_dict['vs']
         tuples = [Vehicle.from_dict(internal_dict) for internal_dict in internal_dicts]
 
         hour_parts = result_dict['hr'].split(':')
         hour, minute = [int(part) for part in hour_parts]
-        today = date.today()
         time_ = time(hour=hour, minute=minute)
         date_and_time = datetime.combine(today, time_)
 
         return cls(
             time=date_and_time,
             vehicles=tuples,
+        )
+
+
+class ForecastWithStop(namedtuple('ForecastWithStop', FORECAST_WITH_STOP_FIELDS)):
+
+    @classmethod
+    def from_dict(cls, result_dict):
+        today = date.today()
+        hour_parts = result_dict['hr'].split(':')
+        hour, minute = [int(part) for part in hour_parts]
+        time_ = time(hour=hour, minute=minute)
+        date_and_time = datetime.combine(today, time_)
+
+        return cls(
+            time=date_and_time,
+            stop=StopWithLines.from_dict(result_dict['p']),
+        )
+
+
+class StopWithLines(namedtuple('StopWithLines', STOP_WITH_LINES_FIELDS)):
+
+    @classmethod
+    def from_dict(cls, result_dict):
+        lines = [LineWithVehicles.from_dict(line_dict) for line_dict in result_dict['l']]
+
+        return cls(
+            code=result_dict['cp'],
+            name=result_dict['np'],
+            latitude=result_dict['py'],
+            longitude=result_dict['px'],
+            lines=lines,
+        )
+
+
+class LineWithVehicles(namedtuple('LineWithVehicles', LINE_WITH_VEHICLES_FIELDS)):
+
+    @classmethod
+    def from_dict(cls, result_dict):
+        vehicles = [VehicleForecast.from_dict(vehicle_dict) for vehicle_dict in result_dict['vs']]
+
+        return cls(
+            sign=result_dict['c'],
+            code=result_dict['cl'],
+            direction=result_dict['sl'],
+            main_to_sec=result_dict['lt0'],
+            sec_to_main=result_dict['lt1'],
+            arrival_quantity=result_dict['qv'],
+            vehicles=vehicles,
+        )
+
+
+class VehicleForecast(namedtuple('VehicleForecast', VEHICLES_FORECAST_FIELDS)):
+
+    @classmethod
+    def from_dict(cls, result_dict):
+        today = date.today()
+        hour_parts = result_dict['t'].split(':')
+        hour, minute = [int(part) for part in hour_parts]
+        time_ = time(hour=hour, minute=minute)
+        date_and_time = datetime.combine(today, time_)
+
+        return cls(
+            plate=result_dict['p'],
+            arriving_at=date_and_time,
+            accessible=result_dict['a'],
+            latitude=result_dict['py'],
+            longitude=result_dict['px'],
         )
 
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 LINE_SEARCH = b"""
 [
     {
@@ -124,7 +126,7 @@ VEHICLE_POSITIONS = b"""
 }
 """
 
-FORECAST_FOR_LINE_AND_STOP = b"""
+FORECAST_FOR_LINE_AND_STOP = u"""
 {
   "hr": "23:09",
   "p": {
@@ -153,7 +155,7 @@ FORECAST_FOR_LINE_AND_STOP = b"""
     ]
   }
 }
-"""
+""".encode('latin1')
 
 FORECAST_FOR_LINE = b"""
 {
@@ -193,7 +195,7 @@ FORECAST_FOR_LINE = b"""
 }
 """
 
-FORECAST_FOR_STOP = b"""
+FORECAST_FOR_STOP = u"""
 {
   "hr": "23:20",
   "p": {
@@ -246,4 +248,4 @@ FORECAST_FOR_STOP = b"""
     ]
   }
 }
-"""
+""".encode('latin1')

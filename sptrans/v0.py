@@ -128,9 +128,20 @@ StopWithLines = build_tuple_class('StopWithLines', {
     'longitude': 'px',
     'lines': TupleListField('l', LineWithVehicles),
 })
+StopWithVehicles = build_tuple_class('StopWithVehicles', {
+    'code': 'cp',
+    'name': 'np',
+    'latitude': 'py',
+    'longitude': 'px',
+    'vehicles': TupleListField('vs', VehicleForecast),
+})
 ForecastWithStop = build_tuple_class('ForecastWithStop', {
     'time': TimeField('hr'),
     'stop': TupleField('p', StopWithLines),
+})
+ForecastWithStops = build_tuple_class('ForecastWithStops', {
+    'time': TimeField('hr'),
+    'stops': TupleListField('ps', StopWithVehicles),
 })
 
 
@@ -185,6 +196,13 @@ class Client(object):
         result_dict = self._get_json('Posicao', codigoLinha=code)
         return Positions.from_dict(result_dict)
 
-    def get_forecast(self, stop_code, line_code):
-        result_dict = self._get_json('Previsao', codigoParada=stop_code, codigoLinha=line_code)
+    def get_forecast(self, stop_code=None, line_code=None):
+        if stop_code is None:
+            result_dict = self._get_json('Previsao/Linha', codigoLinha=line_code)
+            return ForecastWithStops.from_dict(result_dict)
+
+        if line_code is None:
+            result_dict = self._get_json('Previsao/Parada', codigoParada=stop_code)
+        else:
+            result_dict = self._get_json('Previsao', codigoParada=stop_code, codigoLinha=line_code)
         return ForecastWithStop.from_dict(result_dict)

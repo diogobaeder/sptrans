@@ -13,6 +13,7 @@ from sptrans.v0 import (
     BASE_URL,
     Client,
     ForecastWithStop,
+    ForecastWithStops,
     Lane,
     Line,
     Positions,
@@ -196,6 +197,36 @@ class ClientTest(TestCase):
         self.assertEqual(forecast, expected_forecast)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
+    @istest
+    @patch('sptrans.v0.requests')
+    def gets_forecast_for_line(self, mock_requests):
+        fixture = test_fixtures.FORECAST_FOR_LINE
+        line_code = '2345'
+
+        mock_requests.get.return_value.content = fixture
+
+        forecast = self.client.get_forecast(line_code=line_code)
+
+        expected_forecast = ForecastWithStops.from_dict(json.loads(fixture.decode('latin1')))
+        url = self.client._build_url('Previsao/Linha', codigoLinha=line_code)
+        self.assertEqual(forecast, expected_forecast)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
+    @istest
+    @patch('sptrans.v0.requests')
+    def gets_forecast_for_stop(self, mock_requests):
+        fixture = test_fixtures.FORECAST_FOR_STOP
+        stop_code = '1234'
+
+        mock_requests.get.return_value.content = fixture
+
+        forecast = self.client.get_forecast(stop_code=stop_code)
+
+        expected_forecast = ForecastWithStop.from_dict(json.loads(fixture.decode('latin1')))
+        url = self.client._build_url('Previsao/Parada', codigoParada=stop_code)
+        self.assertEqual(forecast, expected_forecast)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')
 class ClientFunctionalTest(TestCase):
@@ -316,3 +347,26 @@ class ForecastWithStopTest(TestCase):
         self.assertEqual(forecast.stop.lines[0].vehicles[0].accessible, True)
         self.assertEqual(forecast.stop.lines[0].vehicles[0].latitude, -23.67603)
         self.assertEqual(forecast.stop.lines[0].vehicles[0].longitude, -46.75891166666667)
+
+
+class ForecastWithStopsTest(TestCase):
+
+    @istest
+    def converts_a_dict_to_an_forecast_object_with_stops_from_line(self):
+        forecast_dict = json.loads(test_fixtures.FORECAST_FOR_LINE.decode('latin1'))
+        today = date.today()
+
+        forecast = ForecastWithStops.from_dict(forecast_dict)
+
+        self.assertEqual(forecast.time, datetime.combine(today, time(hour=23, minute=18)))
+
+        self.assertEqual(forecast.stops[0].code, 700016623)
+        self.assertEqual(forecast.stops[0].name, 'ANA CINTRA B/C')
+        self.assertEqual(forecast.stops[0].latitude, -23.538763)
+        self.assertEqual(forecast.stops[0].longitude, -46.646925)
+
+        self.assertEqual(forecast.stops[0].vehicles[0].plate, '11436')
+        self.assertEqual(forecast.stops[0].vehicles[0].arriving_at, datetime.combine(today, time(hour=23, minute=26)))
+        self.assertEqual(forecast.stops[0].vehicles[0].accessible, False)
+        self.assertEqual(forecast.stops[0].vehicles[0].latitude, -23.528119999999998)
+        self.assertEqual(forecast.stops[0].vehicles[0].longitude, -46.670674999999996)

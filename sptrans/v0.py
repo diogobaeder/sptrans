@@ -64,6 +64,12 @@ def build_tuple_class(name, mapping):
     return type(name, base_classes, {'MAPPING': mapping})
 
 
+def time_string_to_datetime(time_string):
+    hour_parts = time_string.split(':')
+    hour, minute = [int(part) for part in hour_parts]
+    return datetime.combine(date.today(), time(hour=hour, minute=minute))
+
+
 Line = build_tuple_class('Line', LINE_MAPPING)
 Stop = build_tuple_class('Stop', STOP_MAPPING)
 Lane = build_tuple_class('Lane', LANE_MAPPING)
@@ -107,17 +113,10 @@ class Positions(namedtuple('Positions', POSITION_FIELDS)):
 
     @classmethod
     def from_dict(cls, result_dict):
-        today = date.today()
-        internal_dicts = result_dict['vs']
-        tuples = [Vehicle.from_dict(internal_dict) for internal_dict in internal_dicts]
-
-        hour_parts = result_dict['hr'].split(':')
-        hour, minute = [int(part) for part in hour_parts]
-        time_ = time(hour=hour, minute=minute)
-        date_and_time = datetime.combine(today, time_)
+        tuples = [Vehicle.from_dict(internal_dict) for internal_dict in result_dict['vs']]
 
         return cls(
-            time=date_and_time,
+            time=time_string_to_datetime(result_dict['hr']),
             vehicles=tuples,
         )
 
@@ -126,14 +125,8 @@ class ForecastWithStop(namedtuple('ForecastWithStop', FORECAST_WITH_STOP_FIELDS)
 
     @classmethod
     def from_dict(cls, result_dict):
-        today = date.today()
-        hour_parts = result_dict['hr'].split(':')
-        hour, minute = [int(part) for part in hour_parts]
-        time_ = time(hour=hour, minute=minute)
-        date_and_time = datetime.combine(today, time_)
-
         return cls(
-            time=date_and_time,
+            time=time_string_to_datetime(result_dict['hr']),
             stop=StopWithLines.from_dict(result_dict['p']),
         )
 
@@ -174,15 +167,9 @@ class VehicleForecast(namedtuple('VehicleForecast', VEHICLES_FORECAST_FIELDS)):
 
     @classmethod
     def from_dict(cls, result_dict):
-        today = date.today()
-        hour_parts = result_dict['t'].split(':')
-        hour, minute = [int(part) for part in hour_parts]
-        time_ = time(hour=hour, minute=minute)
-        date_and_time = datetime.combine(today, time_)
-
         return cls(
             plate=result_dict['p'],
-            arriving_at=date_and_time,
+            arriving_at=time_string_to_datetime(result_dict['t']),
             accessible=result_dict['a'],
             latitude=result_dict['py'],
             longitude=result_dict['px'],

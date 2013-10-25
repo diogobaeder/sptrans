@@ -20,42 +20,17 @@ import requests
 BASE_URL = 'http://api.olhovivo.sptrans.com.br/v0'
 
 
-LINE_MAPPING = {
-    'code': 'CodigoLinha',
-    'circular': 'Circular',
-    'sign': 'Letreiro',
-    'direction': 'Sentido',
-    'type': 'Tipo',
-    'main_to_sec': 'DenominacaoTPTS',
-    'sec_to_main': 'DenominacaoTSTP',
-    'info': 'Informacoes',
-}
-STOP_MAPPING = {
-    'code': 'CodigoParada',
-    'name': 'Nome',
-    'address': 'Endereco',
-    'latitude': 'Latitude',
-    'longitude': 'Longitude',
-}
-LANE_MAPPING = {
-    'code': 'CodCorredor',
-    'cot': 'CodCot',
-    'name': 'Nome',
-}
-VEHICLE_MAPPING = {
-    'plate': 'p',
-    'accessible': 'a',
-    'latitude': 'py',
-    'longitude': 'px',
-}
-
-
 class MappedTuple(object):
     MAPPING = {}
 
     @classmethod
     def from_dict(cls, result_dict):
-        kwargs = {key: result_dict[value] for key, value in cls.MAPPING.items()}
+        kwargs = {}
+        for key, value in cls.MAPPING.items():
+            if isinstance(value, str):
+                kwargs[key] = result_dict[value]
+            else:
+                kwargs[key] = value.resolve(result_dict)
         return cls(**kwargs)
 
 
@@ -70,110 +45,93 @@ def time_string_to_datetime(time_string):
     return datetime.combine(date.today(), time(hour=hour, minute=minute))
 
 
-Line = build_tuple_class('Line', LINE_MAPPING)
-Stop = build_tuple_class('Stop', STOP_MAPPING)
-Lane = build_tuple_class('Lane', LANE_MAPPING)
-Vehicle = build_tuple_class('Vehicle', VEHICLE_MAPPING)
+class TimeField(object):
+
+    def __init__(self, field):
+        self.field = field
+
+    def resolve(self, result_dict):
+        return time_string_to_datetime(result_dict[self.field])
 
 
-POSITION_FIELDS = [
-    'time',
-    'vehicles',
-]
-FORECAST_WITH_STOP_FIELDS = [
-    'time',
-    'stop',
-]
-STOP_WITH_LINES_FIELDS = [
-    'code',
-    'name',
-    'latitude',
-    'longitude',
-    'lines',
-]
-LINE_WITH_VEHICLES_FIELDS = [
-    'sign',
-    'code',
-    'direction',
-    'main_to_sec',
-    'sec_to_main',
-    'arrival_quantity',
-    'vehicles',
-]
-VEHICLES_FORECAST_FIELDS = [
-    'plate',
-    'arriving_at',
-    'accessible',
-    'latitude',
-    'longitude',
-]
+class TupleField(object):
+    def __init__(self, field, tuple_class):
+        self.field = field
+        self.tuple_class = tuple_class
+
+    def resolve(self, result_dict):
+        return self.tuple_class.from_dict(result_dict[self.field])
 
 
-class Positions(namedtuple('Positions', POSITION_FIELDS)):
+class TupleListField(object):
+    def __init__(self, field, tuple_class):
+        self.field = field
+        self.tuple_class = tuple_class
 
-    @classmethod
-    def from_dict(cls, result_dict):
-        tuples = [Vehicle.from_dict(internal_dict) for internal_dict in result_dict['vs']]
-
-        return cls(
-            time=time_string_to_datetime(result_dict['hr']),
-            vehicles=tuples,
-        )
+    def resolve(self, result_dict):
+        return [self.tuple_class.from_dict(internal_dict)
+                for internal_dict in result_dict[self.field]]
 
 
-class ForecastWithStop(namedtuple('ForecastWithStop', FORECAST_WITH_STOP_FIELDS)):
-
-    @classmethod
-    def from_dict(cls, result_dict):
-        return cls(
-            time=time_string_to_datetime(result_dict['hr']),
-            stop=StopWithLines.from_dict(result_dict['p']),
-        )
-
-
-class StopWithLines(namedtuple('StopWithLines', STOP_WITH_LINES_FIELDS)):
-
-    @classmethod
-    def from_dict(cls, result_dict):
-        lines = [LineWithVehicles.from_dict(line_dict) for line_dict in result_dict['l']]
-
-        return cls(
-            code=result_dict['cp'],
-            name=result_dict['np'],
-            latitude=result_dict['py'],
-            longitude=result_dict['px'],
-            lines=lines,
-        )
-
-
-class LineWithVehicles(namedtuple('LineWithVehicles', LINE_WITH_VEHICLES_FIELDS)):
-
-    @classmethod
-    def from_dict(cls, result_dict):
-        vehicles = [VehicleForecast.from_dict(vehicle_dict) for vehicle_dict in result_dict['vs']]
-
-        return cls(
-            sign=result_dict['c'],
-            code=result_dict['cl'],
-            direction=result_dict['sl'],
-            main_to_sec=result_dict['lt0'],
-            sec_to_main=result_dict['lt1'],
-            arrival_quantity=result_dict['qv'],
-            vehicles=vehicles,
-        )
-
-
-class VehicleForecast(namedtuple('VehicleForecast', VEHICLES_FORECAST_FIELDS)):
-
-    @classmethod
-    def from_dict(cls, result_dict):
-        return cls(
-            plate=result_dict['p'],
-            arriving_at=time_string_to_datetime(result_dict['t']),
-            accessible=result_dict['a'],
-            latitude=result_dict['py'],
-            longitude=result_dict['px'],
-        )
+Line = build_tuple_class('Line', {
+    'code': 'CodigoLinha',
+    'circular': 'Circular',
+    'sign': 'Letreiro',
+    'direction': 'Sentido',
+    'type': 'Tipo',
+    'main_to_sec': 'DenominacaoTPTS',
+    'sec_to_main': 'DenominacaoTSTP',
+    'info': 'Informacoes',
+})
+Stop = build_tuple_class('Stop', {
+    'code': 'CodigoParada',
+    'name': 'Nome',
+    'address': 'Endereco',
+    'latitude': 'Latitude',
+    'longitude': 'Longitude',
+})
+Lane = build_tuple_class('Lane', {
+    'code': 'CodCorredor',
+    'cot': 'CodCot',
+    'name': 'Nome',
+})
+Vehicle = build_tuple_class('Vehicle', {
+    'plate': 'p',
+    'accessible': 'a',
+    'latitude': 'py',
+    'longitude': 'px',
+})
+VehicleForecast = build_tuple_class('VehicleForecast', {
+    'plate': 'p',
+    'accessible': 'a',
+    'arriving_at': TimeField('t'),
+    'latitude': 'py',
+    'longitude': 'px',
+})
+Positions = build_tuple_class('Positions', {
+    'time': TimeField('hr'),
+    'vehicles': TupleListField('vs', Vehicle),
+})
+LineWithVehicles = build_tuple_class('LineWithVehicles', {
+    'sign': 'c',
+    'code': 'cl',
+    'direction': 'sl',
+    'main_to_sec': 'lt0',
+    'sec_to_main': 'lt1',
+    'arrival_quantity': 'qv',
+    'vehicles': TupleListField('vs', VehicleForecast),
+})
+StopWithLines = build_tuple_class('StopWithLines', {
+    'code': 'cp',
+    'name': 'np',
+    'latitude': 'py',
+    'longitude': 'px',
+    'lines': TupleListField('l', LineWithVehicles),
+})
+ForecastWithStop = build_tuple_class('ForecastWithStop', {
+    'time': TimeField('hr'),
+    'stop': TupleField('p', StopWithLines),
+})
 
 
 class Client(object):

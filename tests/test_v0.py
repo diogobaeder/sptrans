@@ -180,21 +180,21 @@ class ClientTest(TestCase):
         self.assertEqual(positions, expected_positions)
         mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
-    #@istest
-    #@patch('sptrans.v0.requests')
-    #def gets_forecast(self, mock_requests):
-        #fixture = test_fixtures.ARRIVAL_FORECAST
-        #stop_code = '1234'
-        #line_code = '2345'
+    @istest
+    @patch('sptrans.v0.requests')
+    def gets_forecast_for_line_and_stop(self, mock_requests):
+        fixture = test_fixtures.FORECAST_FOR_LINE_AND_STOP
+        stop_code = '1234'
+        line_code = '2345'
 
-        #mock_requests.get.return_value.content = fixture
+        mock_requests.get.return_value.content = fixture
 
-        #forecast = self.client.get_forecast(stop_code=stop_code, line_code=line_code)
+        forecast = self.client.get_forecast(stop_code=stop_code, line_code=line_code)
 
-        #expected_forecast = ForecastWithStop.from_dict(json.loads(fixture.decode('latin1')))
-        #url = self.client._build_url('Previsao', codigoParada=stop_code, codigoLinha=line_code)
-        #self.assertEqual(forecast, expected_forecast)
-        #mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        expected_forecast = ForecastWithStop.from_dict(json.loads(fixture.decode('latin1')))
+        url = self.client._build_url('Previsao', codigoParada=stop_code, codigoLinha=line_code)
+        self.assertEqual(forecast, expected_forecast)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
 
 
 @skipUnless(TOKEN, 'Please provide an SPTRANS_TOKEN env variable')

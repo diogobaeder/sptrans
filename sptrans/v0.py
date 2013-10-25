@@ -184,3 +184,7 @@ class Client(object):
     def get_positions(self, code):
         result_dict = self._get_json('Posicao', codigoLinha=code)
         return Positions.from_dict(result_dict)
+
+    def get_forecast(self, stop_code, line_code):
+        result_dict = self._get_json('Previsao', codigoParada=stop_code, codigoLinha=line_code)
+        return ForecastWithStop.from_dict(result_dict)

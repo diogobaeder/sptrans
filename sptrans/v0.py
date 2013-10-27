@@ -169,11 +169,15 @@ class Client(object):
         return result
 
     def authenticate(self, token):
+        """Authenticates to the webservice.
+
+        Accepts a single parameter, which is the API token string."""
         url = self._build_url('Login/Autenticar', token=token)
         result = requests.post(url)
         self.cookies = result.cookies
 
     def search_lines(self, keywords):
+        """Searches for lines that match the provided keywords."""
         result_list = self._get_json('Linha/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Line.from_dict(result_dict)

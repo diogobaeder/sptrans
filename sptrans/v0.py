@@ -177,12 +177,24 @@ class Client(object):
         self.cookies = result.cookies
 
     def search_routes(self, keywords):
-        """Searches for routes that match the provided keywords."""
+        """Searches for routes that match the provided keywords.
+
+        Returns a generator that yields Route objects with the following attributes:
+        code: the route code
+        circular: whether the route is circular or not
+        sign: the sign that is shown at the front top of the bus
+        direction: the direction of the route
+        type: the route type
+        main_to_sec: the name of the route when moving from the main terminal to the second one
+        sec_to_main: the name of the route when moving from the second terminal to the main one
+        info: additional info
+        """
         result_list = self._get_json('Linha/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Route.from_dict(result_dict)
 
     def search_stops(self, keywords):
+        """Searches for bus stops that match the provided keywords."""
         result_list = self._get_json('Parada/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)

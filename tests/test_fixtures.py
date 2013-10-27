@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-LINE_SEARCH = b"""
+ROUTE_SEARCH = b"""
 [
     {
         "CodigoLinha": 1273,
@@ -58,7 +58,7 @@ STOP_SEARCH = b"""
 ]
 """
 
-STOP_SEARCH_BY_LINE = b"""
+STOP_SEARCH_BY_ROUTE = b"""
 [
   {
     "CodigoParada": 7014417,
@@ -126,7 +126,7 @@ VEHICLE_POSITIONS = b"""
 }
 """
 
-FORECAST_FOR_LINE_AND_STOP = u"""
+FORECAST_FOR_ROUTE_AND_STOP = u"""
 {
   "hr": "23:09",
   "p": {
@@ -157,7 +157,7 @@ FORECAST_FOR_LINE_AND_STOP = u"""
 }
 """.encode('latin1')
 
-FORECAST_FOR_LINE = b"""
+FORECAST_FOR_ROUTE = b"""
 {
   "hr": "23:18",
   "ps": [

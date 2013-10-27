@@ -77,7 +77,7 @@ class TupleListField(object):
                 for internal_dict in result_dict[self.field]]
 
 
-Line = build_tuple_class('Line', {
+Route = build_tuple_class('Route', {
     'code': 'CodigoLinha',
     'circular': 'Circular',
     'sign': 'Letreiro',
@@ -116,7 +116,7 @@ Positions = build_tuple_class('Positions', {
     'time': TimeField('hr'),
     'vehicles': TupleListField('vs', Vehicle),
 })
-LineWithVehicles = build_tuple_class('LineWithVehicles', {
+RouteWithVehicles = build_tuple_class('RouteWithVehicles', {
     'sign': 'c',
     'code': 'cl',
     'direction': 'sl',
@@ -125,12 +125,12 @@ LineWithVehicles = build_tuple_class('LineWithVehicles', {
     'arrival_quantity': 'qv',
     'vehicles': TupleListField('vs', VehicleForecast),
 })
-StopWithLines = build_tuple_class('StopWithLines', {
+StopWithRoutes = build_tuple_class('StopWithRoutes', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
-    'lines': TupleListField('l', LineWithVehicles),
+    'routes': TupleListField('l', RouteWithVehicles),
 })
 StopWithVehicles = build_tuple_class('StopWithVehicles', {
     'code': 'cp',
@@ -141,7 +141,7 @@ StopWithVehicles = build_tuple_class('StopWithVehicles', {
 })
 ForecastWithStop = build_tuple_class('ForecastWithStop', {
     'time': TimeField('hr'),
-    'stop': TupleField('p', StopWithLines),
+    'stop': TupleField('p', StopWithRoutes),
 })
 ForecastWithStops = build_tuple_class('ForecastWithStops', {
     'time': TimeField('hr'),
@@ -176,18 +176,18 @@ class Client(object):
         result = requests.post(url)
         self.cookies = result.cookies
 
-    def search_lines(self, keywords):
-        """Searches for lines that match the provided keywords."""
+    def search_routes(self, keywords):
+        """Searches for routes that match the provided keywords."""
         result_list = self._get_json('Linha/Buscar', termosBusca=keywords)
         for result_dict in result_list:
-            yield Line.from_dict(result_dict)
+            yield Route.from_dict(result_dict)
 
     def search_stops(self, keywords):
         result_list = self._get_json('Parada/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
-    def search_stops_by_line(self, code):
+    def search_stops_by_route(self, code):
         result_list = self._get_json('Parada/BuscarParadasPorLinha', codigoLinha=code)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
@@ -206,13 +206,13 @@ class Client(object):
         result_dict = self._get_json('Posicao', codigoLinha=code)
         return Positions.from_dict(result_dict)
 
-    def get_forecast(self, stop_code=None, line_code=None):
+    def get_forecast(self, stop_code=None, route_code=None):
         if stop_code is None:
-            result_dict = self._get_json('Previsao/Linha', codigoLinha=line_code)
+            result_dict = self._get_json('Previsao/Linha', codigoLinha=route_code)
             return ForecastWithStops.from_dict(result_dict)
 
-        if line_code is None:
+        if route_code is None:
             result_dict = self._get_json('Previsao/Parada', codigoParada=stop_code)
         else:
-            result_dict = self._get_json('Previsao', codigoParada=stop_code, codigoLinha=line_code)
+            result_dict = self._get_json('Previsao', codigoParada=stop_code, codigoLinha=route_code)
         return ForecastWithStop.from_dict(result_dict)

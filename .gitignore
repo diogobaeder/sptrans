@@ -38,3 +38,4 @@ nosetests.xml
 
 
 cover/
+docs/_build/

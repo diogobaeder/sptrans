@@ -31,12 +31,12 @@ class RequestError(Exception):
 
 
 class MappedTuple(object):
-    MAPPING = {}
+    _MAPPING = {}
 
     @classmethod
     def from_dict(cls, result_dict):
         kwargs = {}
-        for key, value in cls.MAPPING.items():
+        for key, value in cls._MAPPING.items():
             if isinstance(value, str):
                 kwargs[key] = result_dict[value]
             else:
@@ -46,7 +46,7 @@ class MappedTuple(object):
 
 def build_tuple_class(name, mapping):
     base_classes = (namedtuple(name, mapping.keys()), MappedTuple)
-    return type(name, base_classes, {'MAPPING': mapping})
+    return type(name, base_classes, {'_MAPPING': mapping})
 
 
 def time_string_to_datetime(time_string):
@@ -93,6 +93,7 @@ Route = build_tuple_class('Route', {
     'sec_to_main': 'DenominacaoTSTP',
     'info': 'Informacoes',
 })
+"""A namedtuple representing a route."""
 Stop = build_tuple_class('Stop', {
     'code': 'CodigoParada',
     'name': 'Nome',

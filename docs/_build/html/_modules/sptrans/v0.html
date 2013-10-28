@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sptrans.v0 &mdash; sptrans 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="sptrans 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">sptrans 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sptrans.v0</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module for the v0 version of the `SPTrans API &lt;http://www.sptrans.com.br/desenvolvedores/APIOlhoVivo/Documentacao.aspx?1&gt;`_.</span>
+
+<span class="sd">The first thing you have to do, in order to use it, is to instantiate a client and authenticate to the API:</span>
+<span class="sd">::</span>
+
+<span class="sd">    from sptrans.v0 import Client</span>
+
+
+<span class="sd">    client = Client()</span>
+<span class="sd">    client.authenticate(&#39;this is my token&#39;)</span>
+
+<span class="sd">Then you can use the other methods to grab data from the API.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlencode</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s">&#39;http://api.olhovivo.sptrans.com.br/v0&#39;</span>
+
+
+<div class="viewcode-block" id="RequestError"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.RequestError">[docs]</a><span class="k">class</span> <span class="nc">RequestError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when the client is not authenticated.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="MappedTuple"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.MappedTuple">[docs]</a><span class="k">class</span> <span class="nc">MappedTuple</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">MAPPING</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MappedTuple.from_dict"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.MappedTuple.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">MAPPING</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_dict</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="build_tuple_class"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.build_tuple_class">[docs]</a><span class="k">def</span> <span class="nf">build_tuple_class</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+    <span class="n">base_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">MappedTuple</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">base_classes</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;MAPPING&#39;</span><span class="p">:</span> <span class="n">mapping</span><span class="p">})</span>
+
+</div>
+<div class="viewcode-block" id="time_string_to_datetime"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.time_string_to_datetime">[docs]</a><span class="k">def</span> <span class="nf">time_string_to_datetime</span><span class="p">(</span><span class="n">time_string</span><span class="p">):</span>
+    <span class="n">hour_parts</span> <span class="o">=</span> <span class="n">time_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+    <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">hour_parts</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">(),</span> <span class="n">time</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="n">minute</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="TimeField"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.TimeField">[docs]</a><span class="k">class</span> <span class="nc">TimeField</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+
+<div class="viewcode-block" id="TimeField.resolve"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.TimeField.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">time_string_to_datetime</span><span class="p">(</span><span class="n">result_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">])</span>
+
+</div></div>
+<div class="viewcode-block" id="TupleField"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.TupleField">[docs]</a><span class="k">class</span> <span class="nc">TupleField</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">tuple_class</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tuple_class</span> <span class="o">=</span> <span class="n">tuple_class</span>
+
+<div class="viewcode-block" id="TupleField.resolve"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.TupleField.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuple_class</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">])</span>
+
+</div></div>
+<div class="viewcode-block" id="TupleListField"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.TupleListField">[docs]</a><span class="k">class</span> <span class="nc">TupleListField</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">tuple_class</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tuple_class</span> <span class="o">=</span> <span class="n">tuple_class</span>
+
+<div class="viewcode-block" id="TupleListField.resolve"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.TupleListField.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tuple_class</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">internal_dict</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">internal_dict</span> <span class="ow">in</span> <span class="n">result_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">]]</span>
+
+</div></div>
+<span class="n">Route</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;Route&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="s">&#39;CodigoLinha&#39;</span><span class="p">,</span>
+    <span class="s">&#39;circular&#39;</span><span class="p">:</span> <span class="s">&#39;Circular&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sign&#39;</span><span class="p">:</span> <span class="s">&#39;Letreiro&#39;</span><span class="p">,</span>
+    <span class="s">&#39;direction&#39;</span><span class="p">:</span> <span class="s">&#39;Sentido&#39;</span><span class="p">,</span>
+    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;Tipo&#39;</span><span class="p">,</span>
+    <span class="s">&#39;main_to_sec&#39;</span><span class="p">:</span> <span class="s">&#39;DenominacaoTPTS&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sec_to_main&#39;</span><span class="p">:</span> <span class="s">&#39;DenominacaoTSTP&#39;</span><span class="p">,</span>
+    <span class="s">&#39;info&#39;</span><span class="p">:</span> <span class="s">&#39;Informacoes&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">Stop</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;Stop&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="s">&#39;CodigoParada&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Nome&#39;</span><span class="p">,</span>
+    <span class="s">&#39;address&#39;</span><span class="p">:</span> <span class="s">&#39;Endereco&#39;</span><span class="p">,</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="s">&#39;Latitude&#39;</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="s">&#39;Longitude&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">Lane</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;Lane&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="s">&#39;CodCorredor&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cot&#39;</span><span class="p">:</span> <span class="s">&#39;CodCot&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Nome&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">Vehicle</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;Vehicle&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;plate&#39;</span><span class="p">:</span> <span class="s">&#39;p&#39;</span><span class="p">,</span>
+    <span class="s">&#39;accessible&#39;</span><span class="p">:</span> <span class="s">&#39;a&#39;</span><span class="p">,</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="s">&#39;py&#39;</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="s">&#39;px&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">VehicleForecast</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;VehicleForecast&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;plate&#39;</span><span class="p">:</span> <span class="s">&#39;p&#39;</span><span class="p">,</span>
+    <span class="s">&#39;accessible&#39;</span><span class="p">:</span> <span class="s">&#39;a&#39;</span><span class="p">,</span>
+    <span class="s">&#39;arriving_at&#39;</span><span class="p">:</span> <span class="n">TimeField</span><span class="p">(</span><span class="s">&#39;t&#39;</span><span class="p">),</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="s">&#39;py&#39;</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="s">&#39;px&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">Positions</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;Positions&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="n">TimeField</span><span class="p">(</span><span class="s">&#39;hr&#39;</span><span class="p">),</span>
+    <span class="s">&#39;vehicles&#39;</span><span class="p">:</span> <span class="n">TupleListField</span><span class="p">(</span><span class="s">&#39;vs&#39;</span><span class="p">,</span> <span class="n">Vehicle</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">RouteWithVehicles</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;RouteWithVehicles&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;sign&#39;</span><span class="p">:</span> <span class="s">&#39;c&#39;</span><span class="p">,</span>
+    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="s">&#39;cl&#39;</span><span class="p">,</span>
+    <span class="s">&#39;direction&#39;</span><span class="p">:</span> <span class="s">&#39;sl&#39;</span><span class="p">,</span>
+    <span class="s">&#39;main_to_sec&#39;</span><span class="p">:</span> <span class="s">&#39;lt0&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sec_to_main&#39;</span><span class="p">:</span> <span class="s">&#39;lt1&#39;</span><span class="p">,</span>
+    <span class="s">&#39;arrival_quantity&#39;</span><span class="p">:</span> <span class="s">&#39;qv&#39;</span><span class="p">,</span>
+    <span class="s">&#39;vehicles&#39;</span><span class="p">:</span> <span class="n">TupleListField</span><span class="p">(</span><span class="s">&#39;vs&#39;</span><span class="p">,</span> <span class="n">VehicleForecast</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">StopWithRoutes</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;StopWithRoutes&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="s">&#39;cp&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;np&#39;</span><span class="p">,</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="s">&#39;py&#39;</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="s">&#39;px&#39;</span><span class="p">,</span>
+    <span class="s">&#39;routes&#39;</span><span class="p">:</span> <span class="n">TupleListField</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">,</span> <span class="n">RouteWithVehicles</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">StopWithVehicles</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;StopWithVehicles&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="s">&#39;cp&#39;</span><span class="p">,</span>
+    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;np&#39;</span><span class="p">,</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="s">&#39;py&#39;</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="s">&#39;px&#39;</span><span class="p">,</span>
+    <span class="s">&#39;vehicles&#39;</span><span class="p">:</span> <span class="n">TupleListField</span><span class="p">(</span><span class="s">&#39;vs&#39;</span><span class="p">,</span> <span class="n">VehicleForecast</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">ForecastWithStop</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;ForecastWithStop&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="n">TimeField</span><span class="p">(</span><span class="s">&#39;hr&#39;</span><span class="p">),</span>
+    <span class="s">&#39;stop&#39;</span><span class="p">:</span> <span class="n">TupleField</span><span class="p">(</span><span class="s">&#39;p&#39;</span><span class="p">,</span> <span class="n">StopWithRoutes</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">ForecastWithStops</span> <span class="o">=</span> <span class="n">build_tuple_class</span><span class="p">(</span><span class="s">&#39;ForecastWithStops&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="n">TimeField</span><span class="p">(</span><span class="s">&#39;hr&#39;</span><span class="p">),</span>
+    <span class="s">&#39;stops&#39;</span><span class="p">:</span> <span class="n">TupleListField</span><span class="p">(</span><span class="s">&#39;ps&#39;</span><span class="p">,</span> <span class="n">StopWithVehicles</span><span class="p">),</span>
+<span class="p">})</span>
+
+
+<div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">cookies</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_build_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">query_string</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&#39;{}/{}?{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">BASE_URL</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">query_string</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_url</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cookies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cookies</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;latin1&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_content</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">(</span><span class="s">u&#39;Message&#39;</span><span class="p">,</span> <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">RequestError</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s">u&#39;Message&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="Client.authenticate"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Authenticates to the webservice.</span>
+
+<span class="sd">        Accepts a single parameter, which is the API token string.&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_url</span><span class="p">(</span><span class="s">&#39;Login/Autenticar&#39;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cookies</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">cookies</span>
+</div>
+<div class="viewcode-block" id="Client.search_routes"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.search_routes">[docs]</a>    <span class="k">def</span> <span class="nf">search_routes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keywords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Searches for routes that match the provided keywords.</span>
+
+<span class="sd">        Returns a generator that yields Route objects with the following attributes:</span>
+<span class="sd">        code: the route code</span>
+<span class="sd">        circular: whether the route is circular or not</span>
+<span class="sd">        sign: the sign that is shown at the front top of the bus</span>
+<span class="sd">        direction: the direction of the route</span>
+<span class="sd">        type: the route type</span>
+<span class="sd">        main_to_sec: the name of the route when moving from the main terminal to the second one</span>
+<span class="sd">        sec_to_main: the name of the route when moving from the second terminal to the main one</span>
+<span class="sd">        info: additional info</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Linha/Buscar&#39;</span><span class="p">,</span> <span class="n">termosBusca</span><span class="o">=</span><span class="n">keywords</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result_dict</span> <span class="ow">in</span> <span class="n">result_list</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Route</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Client.search_stops"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.search_stops">[docs]</a>    <span class="k">def</span> <span class="nf">search_stops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keywords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Searches for bus stops that match the provided keywords.&quot;&quot;&quot;</span>
+        <span class="n">result_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Parada/Buscar&#39;</span><span class="p">,</span> <span class="n">termosBusca</span><span class="o">=</span><span class="n">keywords</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result_dict</span> <span class="ow">in</span> <span class="n">result_list</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Stop</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Client.search_stops_by_route"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.search_stops_by_route">[docs]</a>    <span class="k">def</span> <span class="nf">search_stops_by_route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="n">result_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Parada/BuscarParadasPorLinha&#39;</span><span class="p">,</span> <span class="n">codigoLinha</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result_dict</span> <span class="ow">in</span> <span class="n">result_list</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Stop</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Client.search_stops_by_lane"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.search_stops_by_lane">[docs]</a>    <span class="k">def</span> <span class="nf">search_stops_by_lane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="n">result_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Parada/BuscarParadasPorCorredor&#39;</span><span class="p">,</span> <span class="n">codigoCorredor</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result_dict</span> <span class="ow">in</span> <span class="n">result_list</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Stop</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Client.list_lanes"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.list_lanes">[docs]</a>    <span class="k">def</span> <span class="nf">list_lanes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Corredor&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result_dict</span> <span class="ow">in</span> <span class="n">result_list</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Lane</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Client.get_positions"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.get_positions">[docs]</a>    <span class="k">def</span> <span class="nf">get_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="n">result_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Posicao&#39;</span><span class="p">,</span> <span class="n">codigoLinha</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Positions</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Client.get_forecast"><a class="viewcode-back" href="../../sptrans.html#sptrans.v0.Client.get_forecast">[docs]</a>    <span class="k">def</span> <span class="nf">get_forecast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop_code</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">route_code</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">stop_code</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Previsao/Linha&#39;</span><span class="p">,</span> <span class="n">codigoLinha</span><span class="o">=</span><span class="n">route_code</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ForecastWithStops</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">route_code</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Previsao/Parada&#39;</span><span class="p">,</span> <span class="n">codigoParada</span><span class="o">=</span><span class="n">stop_code</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="s">&#39;Previsao&#39;</span><span class="p">,</span> <span class="n">codigoParada</span><span class="o">=</span><span class="n">stop_code</span><span class="p">,</span> <span class="n">codigoLinha</span><span class="o">=</span><span class="n">route_code</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ForecastWithStop</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">sptrans 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Diogo Baeder.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

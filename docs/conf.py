@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # sptrans documentation build configuration file, created by
-# sphinx-quickstart on Sun Oct 27 16:40:39 2013.
+# sphinx-quickstart on Mon Oct 28 04:21:33 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -13,12 +13,13 @@
 
 import os
 import sys
+from os.path import abspath, dirname
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-project_dir = os.path.abspath('../../')
+project_dir = os.path.abspath(dirname(dirname(__file__)))
 sys.path.insert(0, project_dir)
 
 import sptrans
@@ -70,7 +71,7 @@ release = '0.1.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -176,21 +177,21 @@ htmlhelp_basename = 'sptransdoc'
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #'papersize': 'letterpaper',
+# The paper size ('letterpaper' or 'a4paper').
+#'papersize': 'letterpaper',
 
-    # The font size ('10pt', '11pt' or '12pt').
-    #'pointsize': '10pt',
+# The font size ('10pt', '11pt' or '12pt').
+#'pointsize': '10pt',
 
-    # Additional stuff for the LaTeX preamble.
-    #'preamble': '',
+# Additional stuff for the LaTeX preamble.
+#'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'sptrans.tex', u'sptrans Documentation',
-     u'Diogo Baeder', 'manual'),
+  ('index', 'sptrans.tex', u'sptrans Documentation',
+   u'Diogo Baeder', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -233,9 +234,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'sptrans', u'sptrans Documentation',
-     u'Diogo Baeder', 'sptrans', 'One line description of project.',
-     'Miscellaneous'),
+  ('index', 'sptrans', u'sptrans Documentation',
+   u'Diogo Baeder', 'sptrans', 'One line description of project.',
+   'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -246,3 +247,46 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+
+# -- Options for Epub output ---------------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = u'sptrans'
+epub_author = u'Diogo Baeder'
+epub_publisher = u'Diogo Baeder'
+epub_copyright = u'2013, Diogo Baeder'
+
+# The language of the text. It defaults to the language option
+# or en if the language is not set.
+#epub_language = ''
+
+# The scheme of the identifier. Typical schemes are ISBN or URL.
+#epub_scheme = ''
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#epub_identifier = ''
+
+# A unique identification for the text.
+#epub_uid = ''
+
+# A tuple containing the cover image and cover page html template filenames.
+#epub_cover = ()
+
+# HTML files that should be inserted before the pages created by sphinx.
+# The format is a list of tuples containing the path and title.
+#epub_pre_files = []
+
+# HTML files shat should be inserted after the pages created by sphinx.
+# The format is a list of tuples containing the path and title.
+#epub_post_files = []
+
+# A list of files that should not be packed into the epub file.
+#epub_exclude_files = []
+
+# The depth of the table of contents in toc.ncx.
+#epub_tocdepth = 3
+
+# Allow duplicate toc entries.
+#epub_tocdup = True

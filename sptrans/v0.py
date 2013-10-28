@@ -1,8 +1,14 @@
-"""Module for the v0 version of the SPTrans API.
+"""Module for the v0 version of the `SPTrans API <http://www.sptrans.com.br/desenvolvedores/APIOlhoVivo/Documentacao.aspx?1>`_.
 
 The first thing you have to do, in order to use it, is to instantiate a client and authenticate to the API:
->>> client = Client()
->>> client.authenticate('this is my token')
+::
+
+    from sptrans.v0 import Client
+
+
+    client = Client()
+    client.authenticate('this is my token')
+
 Then you can use the other methods to grab data from the API.
 """
 

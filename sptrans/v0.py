@@ -156,6 +156,18 @@ ForecastWithStops = build_tuple_class('ForecastWithStops', {
 
 
 class Client(object):
+    """Main client class.
+
+    Example:
+    ::
+
+        from sptrans.v0 import Client
+
+
+        client = Client()
+        client.authenticate('this is my token')
+
+    """
     cookies = None
 
     def _build_url(self, endpoint, **kwargs):

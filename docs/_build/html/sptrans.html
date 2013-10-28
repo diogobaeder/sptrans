@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="sptrans 0.1.0 documentation" href="index.html" />
-    <link rel="prev" title="Welcome to sptrans’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Getting started" href="getting-started.html" /> 
   </head>
   <body>
     <div class="related">
@@ -39,7 +39,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to sptrans’s documentation!"
+          <a href="getting-started.html" title="Getting started"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">sptrans 0.1.0 documentation</a> &raquo;</li> 
       </ul>
@@ -68,6 +68,15 @@
 <dt id="sptrans.v0.Client">
 <em class="property">class </em><tt class="descclassname">sptrans.v0.</tt><tt class="descname">Client</tt><a class="reference internal" href="_modules/sptrans/v0.html#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sptrans.v0.Client" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Main client class.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sptrans.v0</span> <span class="kn">import</span> <span class="n">Client</span>
+
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+<span class="n">client</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="s">&#39;this is my token&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="sptrans.v0.Client.authenticate">
 <tt class="descname">authenticate</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/sptrans/v0.html#Client.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sptrans.v0.Client.authenticate" title="Permalink to this definition">¶</a></dt>
@@ -134,7 +143,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.ForecastWithStop" title="sptrans.v0.ForecastWithStop"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.ForecastWithStop</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.ForecastWithStop.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'stop': &lt;sptrans.v0.TupleField object at 0x2966550&gt;, 'time': &lt;sptrans.v0.TimeField object at 0x2966350&gt;}</em><a class="headerlink" href="#sptrans.v0.ForecastWithStop.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'stop': &lt;sptrans.v0.TupleField object at 0x3872e90&gt;, 'time': &lt;sptrans.v0.TimeField object at 0x3872c90&gt;}</em><a class="headerlink" href="#sptrans.v0.ForecastWithStop.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -145,7 +154,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.ForecastWithStops" title="sptrans.v0.ForecastWithStops"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.ForecastWithStops</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.ForecastWithStops.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'stops': &lt;sptrans.v0.TupleListField object at 0x2966a10&gt;, 'time': &lt;sptrans.v0.TimeField object at 0x2966910&gt;}</em><a class="headerlink" href="#sptrans.v0.ForecastWithStops.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'stops': &lt;sptrans.v0.TupleListField object at 0x3871390&gt;, 'time': &lt;sptrans.v0.TimeField object at 0x3871290&gt;}</em><a class="headerlink" href="#sptrans.v0.ForecastWithStops.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -183,7 +192,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.Positions" title="sptrans.v0.Positions"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.Positions</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.Positions.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'vehicles': &lt;sptrans.v0.TupleListField object at 0x2924d90&gt;, 'time': &lt;sptrans.v0.TimeField object at 0x2924bd0&gt;}</em><a class="headerlink" href="#sptrans.v0.Positions.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'vehicles': &lt;sptrans.v0.TupleListField object at 0x386d710&gt;, 'time': &lt;sptrans.v0.TimeField object at 0x386d550&gt;}</em><a class="headerlink" href="#sptrans.v0.Positions.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -212,7 +221,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.RouteWithVehicles" title="sptrans.v0.RouteWithVehicles"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.RouteWithVehicles</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.RouteWithVehicles.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'sec_to_main': 'lt1', 'direction': 'sl', 'code': 'cl', 'vehicles': &lt;sptrans.v0.TupleListField object at 0x291c1d0&gt;, 'arrival_quantity': 'qv', 'sign': 'c', 'main_to_sec': 'lt0'}</em><a class="headerlink" href="#sptrans.v0.RouteWithVehicles.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'sec_to_main': 'lt1', 'direction': 'sl', 'code': 'cl', 'vehicles': &lt;sptrans.v0.TupleListField object at 0x386db10&gt;, 'arrival_quantity': 'qv', 'sign': 'c', 'main_to_sec': 'lt0'}</em><a class="headerlink" href="#sptrans.v0.RouteWithVehicles.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -234,7 +243,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.StopWithRoutes" title="sptrans.v0.StopWithRoutes"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.StopWithRoutes</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.StopWithRoutes.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'latitude': 'py', 'routes': &lt;sptrans.v0.TupleListField object at 0x291c710&gt;, 'code': 'cp', 'name': 'np', 'longitude': 'px'}</em><a class="headerlink" href="#sptrans.v0.StopWithRoutes.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'latitude': 'py', 'routes': &lt;sptrans.v0.TupleListField object at 0x3872090&gt;, 'code': 'cp', 'name': 'np', 'longitude': 'px'}</em><a class="headerlink" href="#sptrans.v0.StopWithRoutes.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -245,7 +254,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.StopWithVehicles" title="sptrans.v0.StopWithVehicles"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.StopWithVehicles</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.StopWithVehicles.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'latitude': 'py', 'code': 'cp', 'name': 'np', 'longitude': 'px', 'vehicles': &lt;sptrans.v0.TupleListField object at 0x291cd50&gt;}</em><a class="headerlink" href="#sptrans.v0.StopWithVehicles.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'latitude': 'py', 'code': 'cp', 'name': 'np', 'longitude': 'px', 'vehicles': &lt;sptrans.v0.TupleListField object at 0x38726d0&gt;}</em><a class="headerlink" href="#sptrans.v0.StopWithVehicles.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -300,7 +309,7 @@ info: additional info</p>
 <dd><p>Bases: <a class="reference internal" href="#sptrans.v0.VehicleForecast" title="sptrans.v0.VehicleForecast"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.VehicleForecast</span></tt></a>, <a class="reference internal" href="#sptrans.v0.MappedTuple" title="sptrans.v0.MappedTuple"><tt class="xref py py-class docutils literal"><span class="pre">sptrans.v0.MappedTuple</span></tt></a></p>
 <dl class="attribute">
 <dt id="sptrans.v0.VehicleForecast.MAPPING">
-<tt class="descname">MAPPING</tt><em class="property"> = {'accessible': 'a', 'plate': 'p', 'arriving_at': &lt;sptrans.v0.TimeField object at 0x2924650&gt;, 'longitude': 'px', 'latitude': 'py'}</em><a class="headerlink" href="#sptrans.v0.VehicleForecast.MAPPING" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAPPING</tt><em class="property"> = {'accessible': 'a', 'plate': 'p', 'arriving_at': &lt;sptrans.v0.TimeField object at 0x3867f90&gt;, 'longitude': 'px', 'latitude': 'py'}</em><a class="headerlink" href="#sptrans.v0.VehicleForecast.MAPPING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -333,8 +342,8 @@ info: additional info</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to sptrans&#8217;s documentation!</a></p>
+  <p class="topless"><a href="getting-started.html"
+                        title="previous chapter">Getting started</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/sptrans.txt"
@@ -367,7 +376,7 @@ info: additional info</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to sptrans’s documentation!"
+          <a href="getting-started.html" title="Getting started"
              >previous</a> |</li>
         <li><a href="index.html">sptrans 0.1.0 documentation</a> &raquo;</li> 
       </ul>

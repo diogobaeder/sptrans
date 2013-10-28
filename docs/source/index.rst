@@ -3,17 +3,29 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-sptrans - Python library for the SPTrans API
-============================================
+=======
+sptrans
+=======
+
+Python library for the SPTrans API
+
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+
+   /getting-started
+
+About
+=====
 
 This library was developed as a Python client to the `SPTrans API <http://www.sptrans.com.br/desenvolvedores/APIOlhoVivo/Documentacao.aspx?1>`_.
 It was made in English so that people from other countries can used it, and contribute to it, so you may expect some discrepancies between the library
 and the SPTrans API itself.
 
-.. toctree::
-   :maxdepth: 4
+Documentation
+=============
 
-   /getting-started
+(:doc:`Looking for the API? Here's a shortcut! </api/modules>`)
 
 License
 =======

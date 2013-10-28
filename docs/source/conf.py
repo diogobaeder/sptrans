@@ -22,6 +22,7 @@ project_dir = os.path.abspath('../../')
 sys.path.insert(0, project_dir)
 
 import sptrans
+sptrans
 
 # -- General configuration -----------------------------------------------------
 
@@ -175,21 +176,21 @@ htmlhelp_basename = 'sptransdoc'
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'sptrans.tex', u'sptrans Documentation',
-   u'Diogo Baeder', 'manual'),
+    ('index', 'sptrans.tex', u'sptrans Documentation',
+     u'Diogo Baeder', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -232,9 +233,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'sptrans', u'sptrans Documentation',
-   u'Diogo Baeder', 'sptrans', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'sptrans', u'sptrans Documentation',
+     u'Diogo Baeder', 'sptrans', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.

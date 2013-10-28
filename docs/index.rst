@@ -14,6 +14,7 @@ Python library for the SPTrans API
    :hidden:
 
    /getting-started
+   /sptrans
 
 About
 =====
@@ -24,6 +25,10 @@ and the SPTrans API itself.
 
 Documentation
 =============
+
+(:ref:`Looking for the API? Here's a shortcut! <modindex>`)
+
+* :doc:`getting-started`
 
 License
 =======

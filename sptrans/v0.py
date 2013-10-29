@@ -30,10 +30,7 @@ class RequestError(Exception):
     """Raised when the client is not authenticated."""
 
 
-class TupleMapMixin(object):
-    """.. warning:: Internal use only.
-
-    A mixin to build namedtuples based on mapping from API to the library."""
+class _TupleMapMixin(object):
     _MAPPING = {}
 
     @classmethod
@@ -48,7 +45,7 @@ class TupleMapMixin(object):
 
 
 def _build_tuple_class(name, mapping):
-    base_classes = (namedtuple(name, mapping.keys()), TupleMapMixin)
+    base_classes = (namedtuple(name, mapping.keys()), _TupleMapMixin)
     return type(name, base_classes, {'_MAPPING': mapping})
 
 
@@ -58,7 +55,7 @@ def _time_string_to_datetime(time_string):
     return datetime.combine(date.today(), time(hour=hour, minute=minute))
 
 
-class TimeField(object):
+class _TimeField(object):
 
     def __init__(self, field):
         self.field = field
@@ -67,7 +64,7 @@ class TimeField(object):
         return _time_string_to_datetime(result_dict[self.field])
 
 
-class TupleField(object):
+class _TupleField(object):
     def __init__(self, field, tuple_class):
         self.field = field
         self.tuple_class = tuple_class
@@ -76,7 +73,7 @@ class TupleField(object):
         return self.tuple_class.from_dict(result_dict[self.field])
 
 
-class TupleListField(object):
+class _TupleListField(object):
     def __init__(self, field, tuple_class):
         self.field = field
         self.tuple_class = tuple_class
@@ -96,7 +93,19 @@ Route = _build_tuple_class('Route', {
     'sec_to_main': 'DenominacaoTSTP',
     'info': 'Informacoes',
 })
-"""A namedtuple representing a route."""
+"""A namedtuple representing a route.
+
+Contains the following attributes:
+
+:var code: (:class:`int`) The route code.
+:var circular: (:class:`bool`) Wether it's a circular route or not.
+:var sign: (:class:`str`) The route sign.
+:var direction: (:class:`int`) The route direction.
+:var type: (:class:`int`) The route type.
+:var main_to_sec: (:class:`str`) The name of the route when moving from the main terminal to the second one.
+:var sec_to_main: (:class:`str`) The name of the route when moving from the second terminal to the main one.
+:var info: (:class:`str`) Extra information about the route.
+"""
 Stop = _build_tuple_class('Stop', {
     'code': 'CodigoParada',
     'name': 'Nome',
@@ -104,11 +113,29 @@ Stop = _build_tuple_class('Stop', {
     'latitude': 'Latitude',
     'longitude': 'Longitude',
 })
+"""A namedtuple representing a bus stop.
+
+Contains the following attributes:
+
+:var code: (:class:`int`) The stop code.
+:var name: (:class:`str`) The stop name.
+:var address: (:class:`str`) The stop address.
+:var latitude: (:class:`float`) The stop latitude.
+:var longitude: (:class:`float`) The stop longitude.
+"""
 Lane = _build_tuple_class('Lane', {
     'code': 'CodCorredor',
     'cot': 'CodCot',
     'name': 'Nome',
 })
+"""A namedtuple representing a bus lane.
+
+Contains the following attributes:
+
+:var code: (:class:`int`) The lane code.
+:var cot: (:class:`int`) The lane "cot" (?).
+:var name: (:class:`str`) The lane name.
+"""
 Vehicle = _build_tuple_class('Vehicle', {
     'plate': 'p',
     'accessible': 'a',
@@ -118,13 +145,13 @@ Vehicle = _build_tuple_class('Vehicle', {
 VehicleForecast = _build_tuple_class('VehicleForecast', {
     'plate': 'p',
     'accessible': 'a',
-    'arriving_at': TimeField('t'),
+    'arriving_at': _TimeField('t'),
     'latitude': 'py',
     'longitude': 'px',
 })
 Positions = _build_tuple_class('Positions', {
-    'time': TimeField('hr'),
-    'vehicles': TupleListField('vs', Vehicle),
+    'time': _TimeField('hr'),
+    'vehicles': _TupleListField('vs', Vehicle),
 })
 RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'sign': 'c',
@@ -133,29 +160,29 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'main_to_sec': 'lt0',
     'sec_to_main': 'lt1',
     'arrival_quantity': 'qv',
-    'vehicles': TupleListField('vs', VehicleForecast),
+    'vehicles': _TupleListField('vs', VehicleForecast),
 })
 StopWithRoutes = _build_tuple_class('StopWithRoutes', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
-    'routes': TupleListField('l', RouteWithVehicles),
+    'routes': _TupleListField('l', RouteWithVehicles),
 })
 StopWithVehicles = _build_tuple_class('StopWithVehicles', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
-    'vehicles': TupleListField('vs', VehicleForecast),
+    'vehicles': _TupleListField('vs', VehicleForecast),
 })
 ForecastWithStop = _build_tuple_class('ForecastWithStop', {
-    'time': TimeField('hr'),
-    'stop': TupleField('p', StopWithRoutes),
+    'time': _TimeField('hr'),
+    'stop': _TupleField('p', StopWithRoutes),
 })
 ForecastWithStops = _build_tuple_class('ForecastWithStops', {
-    'time': TimeField('hr'),
-    'stops': TupleListField('ps', StopWithVehicles),
+    'time': _TimeField('hr'),
+    'stops': _TupleListField('ps', StopWithVehicles),
 })
 
 

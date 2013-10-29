@@ -30,7 +30,10 @@ class RequestError(Exception):
     """Raised when the client is not authenticated."""
 
 
-class MappedTuple(object):
+class TupleMapMixin(object):
+    """.. warning:: Internal use only.
+
+    A mixin to build namedtuples based on mapping from API to the library."""
     _MAPPING = {}
 
     @classmethod
@@ -44,12 +47,12 @@ class MappedTuple(object):
         return cls(**kwargs)
 
 
-def build_tuple_class(name, mapping):
-    base_classes = (namedtuple(name, mapping.keys()), MappedTuple)
+def _build_tuple_class(name, mapping):
+    base_classes = (namedtuple(name, mapping.keys()), TupleMapMixin)
     return type(name, base_classes, {'_MAPPING': mapping})
 
 
-def time_string_to_datetime(time_string):
+def _time_string_to_datetime(time_string):
     hour_parts = time_string.split(':')
     hour, minute = [int(part) for part in hour_parts]
     return datetime.combine(date.today(), time(hour=hour, minute=minute))
@@ -61,7 +64,7 @@ class TimeField(object):
         self.field = field
 
     def resolve(self, result_dict):
-        return time_string_to_datetime(result_dict[self.field])
+        return _time_string_to_datetime(result_dict[self.field])
 
 
 class TupleField(object):
@@ -83,7 +86,7 @@ class TupleListField(object):
                 for internal_dict in result_dict[self.field]]
 
 
-Route = build_tuple_class('Route', {
+Route = _build_tuple_class('Route', {
     'code': 'CodigoLinha',
     'circular': 'Circular',
     'sign': 'Letreiro',
@@ -94,36 +97,36 @@ Route = build_tuple_class('Route', {
     'info': 'Informacoes',
 })
 """A namedtuple representing a route."""
-Stop = build_tuple_class('Stop', {
+Stop = _build_tuple_class('Stop', {
     'code': 'CodigoParada',
     'name': 'Nome',
     'address': 'Endereco',
     'latitude': 'Latitude',
     'longitude': 'Longitude',
 })
-Lane = build_tuple_class('Lane', {
+Lane = _build_tuple_class('Lane', {
     'code': 'CodCorredor',
     'cot': 'CodCot',
     'name': 'Nome',
 })
-Vehicle = build_tuple_class('Vehicle', {
+Vehicle = _build_tuple_class('Vehicle', {
     'plate': 'p',
     'accessible': 'a',
     'latitude': 'py',
     'longitude': 'px',
 })
-VehicleForecast = build_tuple_class('VehicleForecast', {
+VehicleForecast = _build_tuple_class('VehicleForecast', {
     'plate': 'p',
     'accessible': 'a',
     'arriving_at': TimeField('t'),
     'latitude': 'py',
     'longitude': 'px',
 })
-Positions = build_tuple_class('Positions', {
+Positions = _build_tuple_class('Positions', {
     'time': TimeField('hr'),
     'vehicles': TupleListField('vs', Vehicle),
 })
-RouteWithVehicles = build_tuple_class('RouteWithVehicles', {
+RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'sign': 'c',
     'code': 'cl',
     'direction': 'sl',
@@ -132,25 +135,25 @@ RouteWithVehicles = build_tuple_class('RouteWithVehicles', {
     'arrival_quantity': 'qv',
     'vehicles': TupleListField('vs', VehicleForecast),
 })
-StopWithRoutes = build_tuple_class('StopWithRoutes', {
+StopWithRoutes = _build_tuple_class('StopWithRoutes', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
     'routes': TupleListField('l', RouteWithVehicles),
 })
-StopWithVehicles = build_tuple_class('StopWithVehicles', {
+StopWithVehicles = _build_tuple_class('StopWithVehicles', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
     'vehicles': TupleListField('vs', VehicleForecast),
 })
-ForecastWithStop = build_tuple_class('ForecastWithStop', {
+ForecastWithStop = _build_tuple_class('ForecastWithStop', {
     'time': TimeField('hr'),
     'stop': TupleField('p', StopWithRoutes),
 })
-ForecastWithStops = build_tuple_class('ForecastWithStops', {
+ForecastWithStops = _build_tuple_class('ForecastWithStops', {
     'time': TimeField('hr'),
     'stops': TupleListField('ps', StopWithVehicles),
 })

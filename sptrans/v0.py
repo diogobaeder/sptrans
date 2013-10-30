@@ -283,6 +283,18 @@ class Client(object):
         :param keywords: The keywords, in a single string, to use for matching.
         :type keywords: :class:`str`
         :return: A generator that yields :class:`Route` objects.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+            for route in client.search_routes('butanta'):
+                print(route.code, route.sign)
+
         """
         result_list = self._get_json('Linha/Buscar', termosBusca=keywords)
         for result_dict in result_list:
@@ -294,6 +306,17 @@ class Client(object):
         :param keywords: The keywords, in a single string, to use for matching.
         :type keywords: :class:`str`
         :return: A generator that yields :class:`Stop` objects.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+            for stop in client.search_stops('butanta'):
+                print(stop.code, stop.name)
         """
         result_list = self._get_json('Parada/Buscar', termosBusca=keywords)
         for result_dict in result_list:
@@ -305,6 +328,17 @@ class Client(object):
         :param code: The route code to use for matching.
         :type code: :class:`int`
         :return: A generator that yields :class:`Stop` objects.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+            for stop in client.search_stops_by_route(1234):
+                print(stop.code, stop.name)
         """
         result_list = self._get_json('Parada/BuscarParadasPorLinha', codigoLinha=code)
         for result_dict in result_list:
@@ -316,6 +350,17 @@ class Client(object):
         :param code: The lane code to use for matching.
         :type code: :class:`int`
         :return: A generator that yields :class:`Stop` objects.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+            for stop in client.search_stops_by_lane(1234):
+                print(stop.code, stop.name)
         """
         result_list = self._get_json('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
         for result_dict in result_list:
@@ -324,7 +369,19 @@ class Client(object):
     def list_lanes(self):
         """Lists all the bus lanes in the city.
 
-        :return: A generator that yields :class:`Lane` objects."""
+        :return: A generator that yields :class:`Lane` objects.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+            for lane in client.list_lanes():
+                print(lane.code, lane.name)
+        """
         result_list = self._get_json('Corredor')
         for result_dict in result_list:
             yield Lane.from_dict(result_dict)
@@ -335,6 +392,21 @@ class Client(object):
         :param code: The route code to use for matching.
         :type code: :class:`int`
         :return: A single :class:`Positions` object.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+
+            positions = client.get_positions(1234)
+            print(positions.time)
+
+            for vehicle in positions.vehicles:
+                print(vehicle.plate)
         """
         result_dict = self._get_json('Posicao', codigoLinha=code)
         return Positions.from_dict(result_dict)
@@ -353,6 +425,30 @@ class Client(object):
         :type route_code: :class:`int`
         :return: A single :class:`ForecastWithStop` object, when passing only `stop_code` or both.
         :return: A single :class:`ForecastWithStops` object, when passing only `route_code`.
+
+        Example:
+        ::
+
+            from sptrans.v0 import Client
+
+
+            client = Client()
+            client.authenticate('this is my token')
+
+            forecast = client.get_forecast(stop_code=1234)
+            for route in forecast.stop.routes:
+                for vehicle in route.vehicles:
+                    print(vehicle.plate)
+
+            forecast = client.get_forecast(stop_code=1234, route_code=2345)
+            for route in forecast.stop.routes:
+                for vehicle in route.vehicles:
+                    print(vehicle.plate)
+
+            forecast = client.get_forecast(route_code=2345)
+            for stop in forecast.stops:
+                for vehicle in stop.vehicles:
+                    print(vehicle.plate)
         """
         if stop_code is None:
             result_dict = self._get_json('Previsao/Linha', codigoLinha=route_code)

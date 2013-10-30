@@ -98,9 +98,9 @@ Route = _build_tuple_class('Route', {
 Contains the following attributes:
 
 :var code: (:class:`int`) The route code.
-:var circular: (:class:`bool`) Wether it's a circular route or not.
-:var sign: (:class:`str`) The route sign.
-:var direction: (:class:`int`) The route direction.
+:var circular: (:class:`bool`) Wether it's a circular route or not (without a secondary terminal).
+:var sign: (:class:`str`) The first part of the route sign.
+:var direction: (:class:`int`) The route direction. "1" means "main to secondary terminal", "2" means "secondary to main terminal".
 :var type: (:class:`int`) The route type.
 :var main_to_sec: (:class:`str`) The name of the route when moving from the main terminal to the second one.
 :var sec_to_main: (:class:`str`) The name of the route when moving from the second terminal to the main one.
@@ -142,6 +142,15 @@ Vehicle = _build_tuple_class('Vehicle', {
     'latitude': 'py',
     'longitude': 'px',
 })
+"""A namedtuple representing a vehicle (bus) with its position.
+
+Contains the following attributes:
+
+:var plate: (:class:`str`) The vehicle plate.
+:var accessible: (:class:`bool`) Wether the vehicle is accessible or not.
+:var latitude: (:class:`float`) The vehicle latitude.
+:var longitude: (:class:`float`) The vehicle longitude.
+"""
 VehicleForecast = _build_tuple_class('VehicleForecast', {
     'plate': 'p',
     'accessible': 'a',
@@ -149,10 +158,27 @@ VehicleForecast = _build_tuple_class('VehicleForecast', {
     'latitude': 'py',
     'longitude': 'px',
 })
+"""A namedtuple representing a vehicle (bus) with its position and forecast to arrive at a certain stop.
+
+Contains the following attributes:
+
+:var plate: (:class:`str`) The vehicle plate.
+:var accessible: (:class:`bool`) Wether the vehicle is accessible or not.
+:var arriving_at: (:class:`datetime.datetime`) The time that the vehicle is expected to arrive.
+:var latitude: (:class:`float`) The vehicle latitude.
+:var longitude: (:class:`float`) The vehicle longitude.
+"""
 Positions = _build_tuple_class('Positions', {
     'time': _TimeField('hr'),
     'vehicles': _TupleListField('vs', Vehicle),
 })
+"""A namedtuple representing a sequence of vehicles positions, with the time when the information was retrieved.
+
+Contains the following attributes:
+
+:var time: (:class:`datetime.datetime`) The time when the information was retrieved.
+:var vehicles: (:class:`list`) The list of vehicles.
+"""
 RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'sign': 'c',
     'code': 'cl',
@@ -162,6 +188,18 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'arrival_quantity': 'qv',
     'vehicles': _TupleListField('vs', VehicleForecast),
 })
+"""A namedtuple representing a route with a sequence of vehicles with their current positions.
+
+Contains the following attributes:
+
+:var sign: (:class:`str`) The first part of the route sign.
+:var code: (:class:`int`) The route code.
+:var direction: (:class:`int`) The route direction. "1" means "main to secondary terminal", "2" means "secondary to main terminal".
+:var main_to_sec: (:class:`str`) The name of the route when moving from the main terminal to the second one.
+:var sec_to_main: (:class:`str`) The name of the route when moving from the second terminal to the main one.
+:var arrival_quantity: (:class:`int`) The quantity of vehicles.
+:var vehicles: (:class:`list`) The list of vehicles.
+"""
 StopWithRoutes = _build_tuple_class('StopWithRoutes', {
     'code': 'cp',
     'name': 'np',
@@ -169,6 +207,16 @@ StopWithRoutes = _build_tuple_class('StopWithRoutes', {
     'longitude': 'px',
     'routes': _TupleListField('l', RouteWithVehicles),
 })
+"""A namedtuple representing a bus stop with a list of routes that pass through this stop.
+
+Contains the following attributes:
+
+:var code: (:class:`int`) The stop code.
+:var name: (:class:`str`) The stop name.
+:var latitude: (:class:`float`) The stop latitude.
+:var longitude: (:class:`float`) The stop longitude.
+:var routes: (:class:`list`) The list of routes that pass through this stop.
+"""
 StopWithVehicles = _build_tuple_class('StopWithVehicles', {
     'code': 'cp',
     'name': 'np',
@@ -176,14 +224,38 @@ StopWithVehicles = _build_tuple_class('StopWithVehicles', {
     'longitude': 'px',
     'vehicles': _TupleListField('vs', VehicleForecast),
 })
+"""A namedtuple representing a bus stop with a list of vehicles that pass through this stop.
+
+Contains the following attributes:
+
+:var code: (:class:`int`) The stop code.
+:var name: (:class:`str`) The stop name.
+:var latitude: (:class:`float`) The stop latitude.
+:var longitude: (:class:`float`) The stop longitude.
+:var vehicles: (:class:`list`) The list of vehicles.
+"""
 ForecastWithStop = _build_tuple_class('ForecastWithStop', {
     'time': _TimeField('hr'),
     'stop': _TupleField('p', StopWithRoutes),
 })
+"""A namedtuple representing a bus stop forecast with routes and the time when the information was retrieved.
+
+Contains the following attributes:
+
+:var time: (:class:`datetime.datetime`) The time when the information was retrieved.
+:var stop: (:class:`StopWithRoutes`) The bus stop with routes.
+"""
 ForecastWithStops = _build_tuple_class('ForecastWithStops', {
     'time': _TimeField('hr'),
     'stops': _TupleListField('ps', StopWithVehicles),
 })
+"""A namedtuple representing a list of bus stops forecast with vehicles and the time when the information was retrieved.
+
+Contains the following attributes:
+
+:var time: (:class:`datetime.datetime`) The time when the information was retrieved.
+:var stops: (:class:`list` of :class:`StopWithVehicles`) The bus stops.
+"""
 
 
 class Client(object):

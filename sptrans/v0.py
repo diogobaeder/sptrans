@@ -95,8 +95,6 @@ Route = _build_tuple_class('Route', {
 })
 """A namedtuple representing a route.
 
-Contains the following attributes:
-
 :var code: (:class:`int`) The route code.
 :var circular: (:class:`bool`) Wether it's a circular route or not (without a secondary terminal).
 :var sign: (:class:`str`) The first part of the route sign.
@@ -115,8 +113,6 @@ Stop = _build_tuple_class('Stop', {
 })
 """A namedtuple representing a bus stop.
 
-Contains the following attributes:
-
 :var code: (:class:`int`) The stop code.
 :var name: (:class:`str`) The stop name.
 :var address: (:class:`str`) The stop address.
@@ -130,8 +126,6 @@ Lane = _build_tuple_class('Lane', {
 })
 """A namedtuple representing a bus lane.
 
-Contains the following attributes:
-
 :var code: (:class:`int`) The lane code.
 :var cot: (:class:`int`) The lane "cot" (?).
 :var name: (:class:`str`) The lane name.
@@ -143,8 +137,6 @@ Vehicle = _build_tuple_class('Vehicle', {
     'longitude': 'px',
 })
 """A namedtuple representing a vehicle (bus) with its position.
-
-Contains the following attributes:
 
 :var plate: (:class:`str`) The vehicle plate.
 :var accessible: (:class:`bool`) Wether the vehicle is accessible or not.
@@ -160,8 +152,6 @@ VehicleForecast = _build_tuple_class('VehicleForecast', {
 })
 """A namedtuple representing a vehicle (bus) with its position and forecast to arrive at a certain stop.
 
-Contains the following attributes:
-
 :var plate: (:class:`str`) The vehicle plate.
 :var accessible: (:class:`bool`) Wether the vehicle is accessible or not.
 :var arriving_at: (:class:`datetime.datetime`) The time that the vehicle is expected to arrive.
@@ -173,8 +163,6 @@ Positions = _build_tuple_class('Positions', {
     'vehicles': _TupleListField('vs', Vehicle),
 })
 """A namedtuple representing a sequence of vehicles positions, with the time when the information was retrieved.
-
-Contains the following attributes:
 
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
 :var vehicles: (:class:`list`) The list of vehicles.
@@ -189,8 +177,6 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'vehicles': _TupleListField('vs', VehicleForecast),
 })
 """A namedtuple representing a route with a sequence of vehicles with their current positions.
-
-Contains the following attributes:
 
 :var sign: (:class:`str`) The first part of the route sign.
 :var code: (:class:`int`) The route code.
@@ -209,8 +195,6 @@ StopWithRoutes = _build_tuple_class('StopWithRoutes', {
 })
 """A namedtuple representing a bus stop with a list of routes that pass through this stop.
 
-Contains the following attributes:
-
 :var code: (:class:`int`) The stop code.
 :var name: (:class:`str`) The stop name.
 :var latitude: (:class:`float`) The stop latitude.
@@ -226,8 +210,6 @@ StopWithVehicles = _build_tuple_class('StopWithVehicles', {
 })
 """A namedtuple representing a bus stop with a list of vehicles that pass through this stop.
 
-Contains the following attributes:
-
 :var code: (:class:`int`) The stop code.
 :var name: (:class:`str`) The stop name.
 :var latitude: (:class:`float`) The stop latitude.
@@ -240,8 +222,6 @@ ForecastWithStop = _build_tuple_class('ForecastWithStop', {
 })
 """A namedtuple representing a bus stop forecast with routes and the time when the information was retrieved.
 
-Contains the following attributes:
-
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
 :var stop: (:class:`StopWithRoutes`) The bus stop with routes.
 """
@@ -250,8 +230,6 @@ ForecastWithStops = _build_tuple_class('ForecastWithStops', {
     'stops': _TupleListField('ps', StopWithVehicles),
 })
 """A namedtuple representing a list of bus stops forecast with vehicles and the time when the information was retrieved.
-
-Contains the following attributes:
 
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
 :var stops: (:class:`list` of :class:`StopWithVehicles`) The bus stops.
@@ -271,7 +249,7 @@ class Client(object):
         client.authenticate('this is my token')
 
     """
-    cookies = None
+    _cookies = None
 
     def _build_url(self, endpoint, **kwargs):
         query_string = urlencode(kwargs)
@@ -279,7 +257,7 @@ class Client(object):
 
     def _get_content(self, endpoint, **kwargs):
         url = self._build_url(endpoint, **kwargs)
-        response = requests.get(url, cookies=self.cookies)
+        response = requests.get(url, cookies=self._cookies)
         return response.content.decode('latin1')
 
     def _get_json(self, endpoint, **kwargs):
@@ -292,54 +270,89 @@ class Client(object):
     def authenticate(self, token):
         """Authenticates to the webservice.
 
-        Accepts a single parameter, which is the API token string."""
+        Accepts a single parameter, which is the API token string.
+        """
         url = self._build_url('Login/Autenticar', token=token)
         result = requests.post(url)
-        self.cookies = result.cookies
+        self._cookies = result.cookies
 
     def search_routes(self, keywords):
         """Searches for routes that match the provided keywords.
 
-        Returns a generator that yields Route objects with the following attributes:
-        code: the route code
-        circular: whether the route is circular or not
-        sign: the sign that is shown at the front top of the bus
-        direction: the direction of the route
-        type: the route type
-        main_to_sec: the name of the route when moving from the main terminal to the second one
-        sec_to_main: the name of the route when moving from the second terminal to the main one
-        info: additional info
+        :param keywords: The keywords, in a single string, to use for matching.
+        :type keywords: :class:`str`
+        :return: A generator that yields :class:`Route` objects.
         """
         result_list = self._get_json('Linha/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Route.from_dict(result_dict)
 
     def search_stops(self, keywords):
-        """Searches for bus stops that match the provided keywords."""
+        """Searches for bus stops that match the provided keywords.
+
+        :param keywords: The keywords, in a single string, to use for matching.
+        :type keywords: :class:`str`
+        :return: A generator that yields :class:`Stop` objects.
+        """
         result_list = self._get_json('Parada/Buscar', termosBusca=keywords)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
     def search_stops_by_route(self, code):
+        """Searches for bus stops that are passed by the route specified by its code.
+
+        :param code: The route code to use for matching.
+        :type code: :class:`int`
+        :return: A generator that yields :class:`Stop` objects.
+        """
         result_list = self._get_json('Parada/BuscarParadasPorLinha', codigoLinha=code)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
     def search_stops_by_lane(self, code):
+        """Searches for bus stops that are contained in a lane specified by its code.
+
+        :param code: The lane code to use for matching.
+        :type code: :class:`int`
+        :return: A generator that yields :class:`Stop` objects.
+        """
         result_list = self._get_json('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
         for result_dict in result_list:
             yield Stop.from_dict(result_dict)
 
     def list_lanes(self):
+        """Lists all the bus lanes in the city.
+
+        :return: A generator that yields :class:`Lane` objects."""
         result_list = self._get_json('Corredor')
         for result_dict in result_list:
             yield Lane.from_dict(result_dict)
 
     def get_positions(self, code):
+        """Gets the vehicles with their current positions, provided a route code.
+
+        :param code: The route code to use for matching.
+        :type code: :class:`int`
+        :return: A single :class:`Positions` object.
+        """
         result_dict = self._get_json('Posicao', codigoLinha=code)
         return Positions.from_dict(result_dict)
 
     def get_forecast(self, stop_code=None, route_code=None):
+        """Gets the arrival forecast, provided a route code or a stop code or both.
+
+        You must provide at least one of the parameters.
+        If you provide only a `stop_code`, it will return a forecast for all routes that attend a certain stop.
+        If you provide only a `route_code`, it will return a forecast for all stops that a certain route attends to.
+        If you provide both, it will return a forecast for the specific route attending to the specific stop provided.
+
+        :param stop_code: The stop code to use for matching.
+        :type stop_code: :class:`int`
+        :param route_code: The stop code to use for matching.
+        :type route_code: :class:`int`
+        :return: A single :class:`ForecastWithStop` object, when passing only `stop_code` or both.
+        :return: A single :class:`ForecastWithStops` object, when passing only `route_code`.
+        """
         if stop_code is None:
             result_dict = self._get_json('Previsao/Linha', codigoLinha=route_code)
             return ForecastWithStops.from_dict(result_dict)

@@ -31,7 +31,7 @@ class ClientTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.client.cookies = 'some cookies for later'
+        self.client._cookies = 'some cookies for later'
 
     def assert_is_a_generator(self, obj):
         foo = (_ for _ in [])
@@ -56,7 +56,7 @@ class ClientTest(TestCase):
         content = self.client._get_content('foo/bar', baz='joe')
 
         self.assertEqual(content, content)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -81,7 +81,7 @@ class ClientTest(TestCase):
 
         client.authenticate(token)
 
-        self.assertEqual(client.cookies, response.cookies)
+        self.assertEqual(client._cookies, response.cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -96,7 +96,7 @@ class ClientTest(TestCase):
                            for route_dict in json.loads(test_fixtures.ROUTE_SEARCH.decode('latin1'))]
         url = self.client._build_url('Linha/Buscar', termosBusca=keywords)
         self.assertEqual(routes, expected_routes)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -122,7 +122,7 @@ class ClientTest(TestCase):
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH.decode('latin1'))]
         url = self.client._build_url('Parada/Buscar', termosBusca=keywords)
         self.assertEqual(stops, expected_stops)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -137,7 +137,7 @@ class ClientTest(TestCase):
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH_BY_ROUTE.decode('latin1'))]
         url = self.client._build_url('Parada/BuscarParadasPorLinha', codigoLinha=code)
         self.assertEqual(stops, expected_stops)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -152,7 +152,7 @@ class ClientTest(TestCase):
                           for stop_dict in json.loads(test_fixtures.STOP_SEARCH_BY_LANE.decode('latin1'))]
         url = self.client._build_url('Parada/BuscarParadasPorCorredor', codigoCorredor=code)
         self.assertEqual(stops, expected_stops)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -165,7 +165,7 @@ class ClientTest(TestCase):
                           for lane_dict in json.loads(test_fixtures.LANES.decode('latin1'))]
         url = self.client._build_url('Corredor')
         self.assertEqual(lanes, expected_lanes)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -180,7 +180,7 @@ class ClientTest(TestCase):
         expected_positions = Positions.from_dict(json.loads(fixture.decode('latin1')))
         url = self.client._build_url('Posicao', codigoLinha=code)
         self.assertEqual(positions, expected_positions)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -196,7 +196,7 @@ class ClientTest(TestCase):
         expected_forecast = ForecastWithStop.from_dict(json.loads(fixture.decode('latin1')))
         url = self.client._build_url('Previsao', codigoParada=stop_code, codigoLinha=route_code)
         self.assertEqual(forecast, expected_forecast)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -211,7 +211,7 @@ class ClientTest(TestCase):
         expected_forecast = ForecastWithStops.from_dict(json.loads(fixture.decode('latin1')))
         url = self.client._build_url('Previsao/Linha', codigoLinha=route_code)
         self.assertEqual(forecast, expected_forecast)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -226,7 +226,7 @@ class ClientTest(TestCase):
         expected_forecast = ForecastWithStop.from_dict(json.loads(fixture.decode('latin1')))
         url = self.client._build_url('Previsao/Parada', codigoParada=stop_code)
         self.assertEqual(forecast, expected_forecast)
-        mock_requests.get.assert_called_once_with(url, cookies=self.client.cookies)
+        mock_requests.get.assert_called_once_with(url, cookies=self.client._cookies)
 
     @istest
     @patch('sptrans.v0.requests')

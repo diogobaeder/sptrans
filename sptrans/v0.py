@@ -270,7 +270,8 @@ class Client(object):
     def authenticate(self, token):
         """Authenticates to the webservice.
 
-        Accepts a single parameter, which is the API token string.
+        :param token: The API token string.
+        :type token: :class:`str`
         """
         url = self._build_url('Login/Autenticar', token=token)
         result = requests.post(url)

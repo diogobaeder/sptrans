@@ -165,7 +165,7 @@ Positions = _build_tuple_class('Positions', {
 """A namedtuple representing a sequence of vehicles positions, with the time when the information was retrieved.
 
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
-:var vehicles: (:class:`list`) The list of vehicles.
+:var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
 RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'sign': 'c',
@@ -184,7 +184,7 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
 :var main_to_sec: (:class:`str`) The name of the route when moving from the main terminal to the second one.
 :var sec_to_main: (:class:`str`) The name of the route when moving from the second terminal to the main one.
 :var arrival_quantity: (:class:`int`) The quantity of vehicles.
-:var vehicles: (:class:`list`) The list of vehicles.
+:var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
 StopWithRoutes = _build_tuple_class('StopWithRoutes', {
     'code': 'cp',
@@ -199,7 +199,7 @@ StopWithRoutes = _build_tuple_class('StopWithRoutes', {
 :var name: (:class:`str`) The stop name.
 :var latitude: (:class:`float`) The stop latitude.
 :var longitude: (:class:`float`) The stop longitude.
-:var routes: (:class:`list`) The list of routes that pass through this stop.
+:var routes: (:class:`list`) The list of :class:`routes <Route>` that pass through this stop.
 """
 StopWithVehicles = _build_tuple_class('StopWithVehicles', {
     'code': 'cp',
@@ -214,7 +214,7 @@ StopWithVehicles = _build_tuple_class('StopWithVehicles', {
 :var name: (:class:`str`) The stop name.
 :var latitude: (:class:`float`) The stop latitude.
 :var longitude: (:class:`float`) The stop longitude.
-:var vehicles: (:class:`list`) The list of vehicles.
+:var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
 ForecastWithStop = _build_tuple_class('ForecastWithStop', {
     'time': _TimeField('hr'),
@@ -223,7 +223,7 @@ ForecastWithStop = _build_tuple_class('ForecastWithStop', {
 """A namedtuple representing a bus stop forecast with routes and the time when the information was retrieved.
 
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
-:var stop: (:class:`StopWithRoutes`) The bus stop with routes.
+:var stop: (:class:`StopWithRoutes`) The bus stop with :class:`routes <Route>`.
 """
 ForecastWithStops = _build_tuple_class('ForecastWithStops', {
     'time': _TimeField('hr'),

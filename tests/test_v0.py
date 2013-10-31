@@ -319,12 +319,12 @@ class PositionsTest(TestCase):
 
         self.assertEqual(positions.time, datetime.combine(today, hour))
 
-        self.assertEqual(positions.vehicles[0].plate, '11433')
+        self.assertEqual(positions.vehicles[0].prefix, '11433')
         self.assertEqual(positions.vehicles[0].accessible, False)
         self.assertEqual(positions.vehicles[0].latitude, -23.540150375000003)
         self.assertEqual(positions.vehicles[0].longitude, -46.64414075)
 
-        self.assertEqual(positions.vehicles[1].plate, '12132')
+        self.assertEqual(positions.vehicles[1].prefix, '12132')
         self.assertEqual(positions.vehicles[1].accessible, False)
         self.assertEqual(positions.vehicles[1].latitude, -23.5200315)
         self.assertEqual(positions.vehicles[1].longitude, -46.699387)
@@ -353,7 +353,7 @@ class ForecastWithStopTest(TestCase):
         self.assertEqual(forecast.stop.routes[0].sec_to_main, u'JD. MARACÁ')
         self.assertEqual(forecast.stop.routes[0].arrival_quantity, 1)
 
-        self.assertEqual(forecast.stop.routes[0].vehicles[0].plate, '74558')
+        self.assertEqual(forecast.stop.routes[0].vehicles[0].prefix, '74558')
         self.assertEqual(forecast.stop.routes[0].vehicles[0].arriving_at, datetime.combine(today, time(hour=23, minute=11)))
         self.assertEqual(forecast.stop.routes[0].vehicles[0].accessible, True)
         self.assertEqual(forecast.stop.routes[0].vehicles[0].latitude, -23.67603)
@@ -376,7 +376,7 @@ class ForecastWithStopsTest(TestCase):
         self.assertEqual(forecast.stops[0].latitude, -23.538763)
         self.assertEqual(forecast.stops[0].longitude, -46.646925)
 
-        self.assertEqual(forecast.stops[0].vehicles[0].plate, '11436')
+        self.assertEqual(forecast.stops[0].vehicles[0].prefix, '11436')
         self.assertEqual(forecast.stops[0].vehicles[0].arriving_at, datetime.combine(today, time(hour=23, minute=26)))
         self.assertEqual(forecast.stops[0].vehicles[0].accessible, False)
         self.assertEqual(forecast.stops[0].vehicles[0].latitude, -23.528119999999998)

@@ -13,7 +13,6 @@ Python library for the SPTrans API
    :maxdepth: 4
    :hidden:
 
-   /getting-started
    /sptrans
 
 About
@@ -23,12 +22,46 @@ This library was developed as a Python client to the `SPTrans API <http://www.sp
 It was made in English so that people from other countries can used it, and contribute to it, so you may expect some discrepancies between the library
 and the SPTrans API itself.
 
-Documentation
-=============
+Getting started
+===============
 
-(:ref:`Looking for the API? Here's a shortcut! <modindex>`)
+Installing
+----------
 
-* :doc:`getting-started`
+Plain and simple:
+
+.. code-block:: bash
+
+   $ pip install sptrans
+
+Or, if you want the latest version under development:
+
+.. code-block:: bash
+
+   $ pip install -e git+https://github.com/diogobaeder/sptrans.git#egg=sptrans
+
+Or, if you still don't want to use pip, just grab the code at GitHub and install it with:
+
+.. code-block:: bash
+
+   $ python setup.py install
+
+Usage
+-----
+
+(:ref:`Looking for the library API? Here's a shortcut! <modindex>`)
+
+Before using the library, you need to have an API token issued at the SPTrans website.
+
+As soon as you have the token, use the :class:`client <sptrans.v0.Client>` itself to authenticate to the API::
+
+    from sptrans.v0 import Client
+
+
+    client = Client()
+    client.authenticate('this is my token')
+
+Now checkout the other methods available in the :class:`Client <sptrans.v0.Client>` class, to see how the library can help you retrieving data.
 
 License
 =======

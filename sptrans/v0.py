@@ -131,20 +131,20 @@ Lane = _build_tuple_class('Lane', {
 :var name: (:class:`str`) The lane name.
 """
 Vehicle = _build_tuple_class('Vehicle', {
-    'plate': 'p',
+    'prefix': 'p',
     'accessible': 'a',
     'latitude': 'py',
     'longitude': 'px',
 })
 """A namedtuple representing a vehicle (bus) with its position.
 
-:var plate: (:class:`str`) The vehicle plate.
+:var prefix: (:class:`str`) The vehicle prefix painted in the bus.
 :var accessible: (:class:`bool`) Wether the vehicle is accessible or not.
 :var latitude: (:class:`float`) The vehicle latitude.
 :var longitude: (:class:`float`) The vehicle longitude.
 """
 VehicleForecast = _build_tuple_class('VehicleForecast', {
-    'plate': 'p',
+    'prefix': 'p',
     'accessible': 'a',
     'arriving_at': _TimeField('t'),
     'latitude': 'py',
@@ -152,7 +152,7 @@ VehicleForecast = _build_tuple_class('VehicleForecast', {
 })
 """A namedtuple representing a vehicle (bus) with its position and forecast to arrive at a certain stop.
 
-:var plate: (:class:`str`) The vehicle plate.
+:var prefix: (:class:`str`) The vehicle prefix painted in the bus.
 :var accessible: (:class:`bool`) Wether the vehicle is accessible or not.
 :var arriving_at: (:class:`datetime.datetime`) The time that the vehicle is expected to arrive.
 :var latitude: (:class:`float`) The vehicle latitude.
@@ -406,7 +406,7 @@ class Client(object):
             print(positions.time)
 
             for vehicle in positions.vehicles:
-                print(vehicle.plate)
+                print(vehicle.prefix)
         """
         result_dict = self._get_json('Posicao', codigoLinha=code)
         return Positions.from_dict(result_dict)
@@ -438,17 +438,17 @@ class Client(object):
             forecast = client.get_forecast(stop_code=1234)
             for route in forecast.stop.routes:
                 for vehicle in route.vehicles:
-                    print(vehicle.plate)
+                    print(vehicle.prefix)
 
             forecast = client.get_forecast(stop_code=1234, route_code=2345)
             for route in forecast.stop.routes:
                 for vehicle in route.vehicles:
-                    print(vehicle.plate)
+                    print(vehicle.prefix)
 
             forecast = client.get_forecast(route_code=2345)
             for stop in forecast.stops:
                 for vehicle in stop.vehicles:
-                    print(vehicle.plate)
+                    print(vehicle.prefix)
         """
         if stop_code is None:
             result_dict = self._get_json('Previsao/Linha', codigoLinha=route_code)

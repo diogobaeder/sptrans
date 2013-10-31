@@ -7,7 +7,7 @@
 sptrans
 =======
 
-Python library for the SPTrans API
+Python library for the SPTrans API.
 
 .. toctree::
    :maxdepth: 4
@@ -29,6 +29,8 @@ Getting started
 
 Installing
 ----------
+
+This library is tested and works under Python 2.7 and 3.3.
 
 Plain and simple:
 

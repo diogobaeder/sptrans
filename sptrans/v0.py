@@ -27,7 +27,15 @@ BASE_URL = 'http://api.olhovivo.sptrans.com.br/v0'
 
 
 class RequestError(Exception):
-    """Raised when the client is not authenticated."""
+    """Raised when the request failes to be accomplished.
+
+    Normally this is due to the client not being authenticated anymore.
+    In this case, just authenticate again, and it should be back at work.
+    """
+
+
+class AuthenticationError(Exception):
+    """Raised when the authentication fails - for example, with a wrong token -."""
 
 
 class _TupleMapMixin(object):
@@ -272,10 +280,15 @@ class Client(object):
 
         :param token: The API token string.
         :type token: :class:`str`
+        :raises: :class:`AuthenticationError` when there's an error during authentication.
+
         """
         url = self._build_url('Login/Autenticar', token=token)
-        result = requests.post(url)
-        self._cookies = result.cookies
+        response = requests.post(url)
+        result = json.loads(response.content.decode('latin1'))
+        if not result:
+            raise AuthenticationError('Cannot authenticate with token "{}"'.format(token))
+        self._cookies = response.cookies
 
     def search_routes(self, keywords):
         """Searches for routes that match the provided keywords.

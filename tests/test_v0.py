@@ -11,6 +11,7 @@ from nose.tools import istest
 from . import test_fixtures
 from sptrans.v0 import (
     BASE_URL,
+    AuthenticationError,
     Client,
     ForecastWithStop,
     ForecastWithStops,
@@ -63,11 +64,21 @@ class ClientTest(TestCase):
     def authenticates_the_user(self, mock_requests):
         token = 'some token'
         client = Client()
+        mock_requests.post.return_value.content = b'true'
 
         client.authenticate(token)
 
         url = self.client._build_url('Login/Autenticar', token=token)
         mock_requests.post.assert_called_once_with(url)
+
+    @istest
+    @patch('sptrans.v0.requests')
+    def cannot_authenticate_the_user_if_token_is_invalid(self, mock_requests):
+        token = 'some wrong token'
+        client = Client()
+        mock_requests.post.return_value.content = b'false'
+
+        self.assertRaises(AuthenticationError, client.authenticate, token)
 
     @istest
     @patch('sptrans.v0.requests')
@@ -77,6 +88,7 @@ class ClientTest(TestCase):
 
         class response:
             cookies = 'some cookies'
+            content = b'true'
         mock_requests.post.return_value = response
 
         client.authenticate(token)

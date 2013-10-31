@@ -351,7 +351,7 @@ class ForecastWithStopTest(TestCase):
         self.assertEqual(forecast.stop.routes[0].direction, 1)
         self.assertEqual(forecast.stop.routes[0].main_to_sec, u'TERM. JOÃO DIAS')
         self.assertEqual(forecast.stop.routes[0].sec_to_main, u'JD. MARACÁ')
-        self.assertEqual(forecast.stop.routes[0].arrival_quantity, 1)
+        self.assertEqual(forecast.stop.routes[0].quantity, 1)
 
         self.assertEqual(forecast.stop.routes[0].vehicles[0].prefix, '74558')
         self.assertEqual(forecast.stop.routes[0].vehicles[0].arriving_at, datetime.combine(today, time(hour=23, minute=11)))

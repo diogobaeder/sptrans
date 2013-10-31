@@ -173,7 +173,7 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
     'direction': 'sl',
     'main_to_sec': 'lt0',
     'sec_to_main': 'lt1',
-    'arrival_quantity': 'qv',
+    'quantity': 'qv',
     'vehicles': _TupleListField('vs', VehicleForecast),
 })
 """A namedtuple representing a route with a sequence of vehicles with their current positions.
@@ -183,7 +183,7 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
 :var direction: (:class:`int`) The route direction. "1" means "main to secondary terminal", "2" means "secondary to main terminal".
 :var main_to_sec: (:class:`str`) The name of the route when moving from the main terminal to the second one.
 :var sec_to_main: (:class:`str`) The name of the route when moving from the second terminal to the main one.
-:var arrival_quantity: (:class:`int`) The quantity of vehicles.
+:var quantity: (:class:`int`) The quantity of vehicles.
 :var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
 StopWithRoutes = _build_tuple_class('StopWithRoutes', {

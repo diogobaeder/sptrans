@@ -38,13 +38,13 @@ class AuthenticationError(Exception):
     """Raised when the authentication fails - for example, with a wrong token -."""
 
 
-class _TupleMapMixin(object):
-    _MAPPING = {}
+class TupleMapMixin(object):
+    MAPPING = {}
 
     @classmethod
     def from_dict(cls, result_dict):
         kwargs = {}
-        for key, value in cls._MAPPING.items():
+        for key, value in cls.MAPPING.items():
             if isinstance(value, str):
                 kwargs[key] = result_dict[value]
             else:
@@ -52,27 +52,27 @@ class _TupleMapMixin(object):
         return cls(**kwargs)
 
 
-def _build_tuple_class(name, mapping):
-    base_classes = (namedtuple(name, mapping.keys()), _TupleMapMixin)
-    return type(name, base_classes, {'_MAPPING': mapping})
+def build_tuple_class(name, mapping):
+    base_classes = (namedtuple(name, mapping.keys()), TupleMapMixin)
+    return type(name, base_classes, {'MAPPING': mapping})
 
 
-def _time_string_to_datetime(time_string):
+def time_string_to_datetime(time_string):
     hour_parts = time_string.split(':')
     hour, minute = [int(part) for part in hour_parts]
     return datetime.combine(date.today(), time(hour=hour, minute=minute))
 
 
-class _TimeField(object):
+class TimeField(object):
 
     def __init__(self, field):
         self.field = field
 
     def resolve(self, result_dict):
-        return _time_string_to_datetime(result_dict[self.field])
+        return time_string_to_datetime(result_dict[self.field])
 
 
-class _TupleField(object):
+class TupleField(object):
     def __init__(self, field, tuple_class):
         self.field = field
         self.tuple_class = tuple_class
@@ -81,7 +81,7 @@ class _TupleField(object):
         return self.tuple_class.from_dict(result_dict[self.field])
 
 
-class _TupleListField(object):
+class TupleListField(object):
     def __init__(self, field, tuple_class):
         self.field = field
         self.tuple_class = tuple_class
@@ -91,7 +91,7 @@ class _TupleListField(object):
                 for internal_dict in result_dict[self.field]]
 
 
-Route = _build_tuple_class('Route', {
+Route = build_tuple_class('Route', {
     'code': 'CodigoLinha',
     'circular': 'Circular',
     'sign': 'Letreiro',
@@ -112,7 +112,7 @@ Route = _build_tuple_class('Route', {
 :var sec_to_main: (:class:`str`) The name of the route when moving from the second terminal to the main one.
 :var info: (:class:`str`) Extra information about the route.
 """
-Stop = _build_tuple_class('Stop', {
+Stop = build_tuple_class('Stop', {
     'code': 'CodigoParada',
     'name': 'Nome',
     'address': 'Endereco',
@@ -127,7 +127,7 @@ Stop = _build_tuple_class('Stop', {
 :var latitude: (:class:`float`) The stop latitude.
 :var longitude: (:class:`float`) The stop longitude.
 """
-Lane = _build_tuple_class('Lane', {
+Lane = build_tuple_class('Lane', {
     'code': 'CodCorredor',
     'cot': 'CodCot',
     'name': 'Nome',
@@ -138,7 +138,7 @@ Lane = _build_tuple_class('Lane', {
 :var cot: (:class:`int`) The lane "cot" (?).
 :var name: (:class:`str`) The lane name.
 """
-Vehicle = _build_tuple_class('Vehicle', {
+Vehicle = build_tuple_class('Vehicle', {
     'prefix': 'p',
     'accessible': 'a',
     'latitude': 'py',
@@ -151,10 +151,10 @@ Vehicle = _build_tuple_class('Vehicle', {
 :var latitude: (:class:`float`) The vehicle latitude.
 :var longitude: (:class:`float`) The vehicle longitude.
 """
-VehicleForecast = _build_tuple_class('VehicleForecast', {
+VehicleForecast = build_tuple_class('VehicleForecast', {
     'prefix': 'p',
     'accessible': 'a',
-    'arriving_at': _TimeField('t'),
+    'arriving_at': TimeField('t'),
     'latitude': 'py',
     'longitude': 'px',
 })
@@ -166,23 +166,23 @@ VehicleForecast = _build_tuple_class('VehicleForecast', {
 :var latitude: (:class:`float`) The vehicle latitude.
 :var longitude: (:class:`float`) The vehicle longitude.
 """
-Positions = _build_tuple_class('Positions', {
-    'time': _TimeField('hr'),
-    'vehicles': _TupleListField('vs', Vehicle),
+Positions = build_tuple_class('Positions', {
+    'time': TimeField('hr'),
+    'vehicles': TupleListField('vs', Vehicle),
 })
 """A namedtuple representing a sequence of vehicles positions, with the time when the information was retrieved.
 
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
 :var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
-RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
+RouteWithVehicles = build_tuple_class('RouteWithVehicles', {
     'sign': 'c',
     'code': 'cl',
     'direction': 'sl',
     'main_to_sec': 'lt0',
     'sec_to_main': 'lt1',
     'quantity': 'qv',
-    'vehicles': _TupleListField('vs', VehicleForecast),
+    'vehicles': TupleListField('vs', VehicleForecast),
 })
 """A namedtuple representing a route with a sequence of vehicles with their current positions.
 
@@ -194,12 +194,12 @@ RouteWithVehicles = _build_tuple_class('RouteWithVehicles', {
 :var quantity: (:class:`int`) The quantity of vehicles.
 :var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
-StopWithRoutes = _build_tuple_class('StopWithRoutes', {
+StopWithRoutes = build_tuple_class('StopWithRoutes', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
-    'routes': _TupleListField('l', RouteWithVehicles),
+    'routes': TupleListField('l', RouteWithVehicles),
 })
 """A namedtuple representing a bus stop with a list of routes that pass through this stop.
 
@@ -209,12 +209,12 @@ StopWithRoutes = _build_tuple_class('StopWithRoutes', {
 :var longitude: (:class:`float`) The stop longitude.
 :var routes: (:class:`list`) The list of :class:`routes <Route>` that pass through this stop.
 """
-StopWithVehicles = _build_tuple_class('StopWithVehicles', {
+StopWithVehicles = build_tuple_class('StopWithVehicles', {
     'code': 'cp',
     'name': 'np',
     'latitude': 'py',
     'longitude': 'px',
-    'vehicles': _TupleListField('vs', VehicleForecast),
+    'vehicles': TupleListField('vs', VehicleForecast),
 })
 """A namedtuple representing a bus stop with a list of vehicles that pass through this stop.
 
@@ -224,18 +224,18 @@ StopWithVehicles = _build_tuple_class('StopWithVehicles', {
 :var longitude: (:class:`float`) The stop longitude.
 :var vehicles: (:class:`list`) The list of :class:`vehicles <Vehicle>`.
 """
-ForecastWithStop = _build_tuple_class('ForecastWithStop', {
-    'time': _TimeField('hr'),
-    'stop': _TupleField('p', StopWithRoutes),
+ForecastWithStop = build_tuple_class('ForecastWithStop', {
+    'time': TimeField('hr'),
+    'stop': TupleField('p', StopWithRoutes),
 })
 """A namedtuple representing a bus stop forecast with routes and the time when the information was retrieved.
 
 :var time: (:class:`datetime.datetime`) The time when the information was retrieved.
 :var stop: (:class:`StopWithRoutes`) The bus stop with :class:`routes <Route>`.
 """
-ForecastWithStops = _build_tuple_class('ForecastWithStops', {
-    'time': _TimeField('hr'),
-    'stops': _TupleListField('ps', StopWithVehicles),
+ForecastWithStops = build_tuple_class('ForecastWithStops', {
+    'time': TimeField('hr'),
+    'stops': TupleListField('ps', StopWithVehicles),
 })
 """A namedtuple representing a list of bus stops forecast with vehicles and the time when the information was retrieved.
 

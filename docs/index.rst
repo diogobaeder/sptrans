@@ -13,7 +13,9 @@ Python library for the SPTrans API
    :maxdepth: 4
    :hidden:
 
+   /changelog
    /sptrans
+   /contributing
 
 About
 =====
@@ -62,6 +64,13 @@ As soon as you have the token, use the :class:`client <sptrans.v0.Client>` itsel
     client.authenticate('this is my token')
 
 Now checkout the other methods available in the :class:`Client <sptrans.v0.Client>` class, to see how the library can help you retrieving data.
+
+Documentation
+=============
+
+* :doc:`changelog`
+* :doc:`library API <sptrans>`
+* :doc:`contributing`
 
 License
 =======

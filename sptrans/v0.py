@@ -247,6 +247,9 @@ ForecastWithStops = _build_tuple_class('ForecastWithStops', {
 class Client(object):
     """Main client class.
 
+    .. warning:: Any method (except :meth:`authenticate`) may raise :class:`RequestError` if the client is not authenticated anymore.
+       So keep an eye on the authentication state.
+
     Example:
     ::
 
@@ -281,7 +284,6 @@ class Client(object):
         :param token: The API token string.
         :type token: :class:`str`
         :raises: :class:`AuthenticationError` when there's an error during authentication.
-
         """
         url = self._build_url('Login/Autenticar', token=token)
         response = requests.post(url)
